@@ -1,0 +1,34 @@
+{
+  "/authenticate": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/assertion/start": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/assertion/finish": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/logout": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/registration/start": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/registration/finish": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/registration-add": {
+    "target": "http://localhost:8080",
+    "secure": false
+  },
+  "/secret": {
+    "target": "http://localhost:8080",
+    "secure": false
+  }
+}

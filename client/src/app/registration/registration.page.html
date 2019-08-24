@@ -1,0 +1,159 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Registration</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="!recoveryToken" class="ion-padding">
+
+  <ion-segment (ionChange)="view = $event.target.value">
+    <ion-segment-button checked value="new">
+      <ion-label>New</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="add">
+      <ion-label>Add</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="recover">
+      <ion-label>Recover</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+
+  <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && registerNew(username.value)"
+        *ngIf="view === 'new'"
+        [ngFormOptions]="{updateOn: 'submit'}"
+        class="ion-margin-top" novalidate>
+    <ion-grid>
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label position="stacked">Username</ion-label>
+            <ion-input #username="ngModel" autocapitalize="off" autocomplete="username" name="username" ngModel required
+                       spellcheck="false" type="text"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-text *ngIf="registrationForm.submitted && username.invalid" color="danger">
+            <p *ngIf="username.errors.required" class="ion-padding-start">
+              Username is required
+            </p>
+          </ion-text>
+          <ion-text *ngIf="submitError" color="danger">
+            <p *ngIf="submitError === 'usernameTaken'" class="ion-padding-start">
+              Username already registered
+            </p>
+          </ion-text>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col class="ion-margin-top">
+          <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
+        </ion-col>
+      </ion-row>
+
+    </ion-grid>
+  </form>
+
+  <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && registerAdd(registrationAddCode.value)"
+        *ngIf="view === 'add'"
+        [ngFormOptions]="{updateOn: 'submit'}"
+        class="ion-margin-top" novalidate>
+    <ion-grid>
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label position="stacked">Add Authenticator Code</ion-label>
+            <ion-input #registrationAddCode="ngModel" autocapitalize="off" name="registrationAddCode" ngModel
+                       required spellcheck="false" type="text"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-text *ngIf="registrationForm.submitted && registrationAddCode.invalid" color="danger">
+            <p *ngIf="registrationAddCode.errors.required" class="ion-padding-start">
+              Add Authenticator Code is required
+            </p>
+          </ion-text>
+          <ion-text *ngIf="submitError" color="danger">
+            <p *ngIf="submitError === 'addTokenInvalid'" class="ion-padding-start">
+              Add Authenticator Code invalid
+            </p>
+          </ion-text>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col class="ion-margin-top">
+          <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
+        </ion-col>
+      </ion-row>
+
+    </ion-grid>
+  </form>
+
+  <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && recover(recoveryCode.value)"
+        *ngIf="view === 'recover'"
+        [ngFormOptions]="{updateOn: 'submit'}"
+        class="ion-margin-top" novalidate>
+    <ion-grid>
+
+      <ion-row>
+        <ion-col>
+          <ion-item>
+            <ion-label position="stacked">Recovery Code</ion-label>
+            <ion-input #recoveryCode="ngModel" autocapitalize="off" name="recoveryCode" ngModel required
+                       spellcheck="false" type="text"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-text *ngIf="registrationForm.submitted && recoveryCode.invalid" color="danger">
+            <p *ngIf="recoveryCode.errors.required" class="ion-padding-start">
+              Recovery Code is required
+            </p>
+          </ion-text>
+          <ion-text *ngIf="submitError" color="danger">
+            <p *ngIf="submitError === 'recoveryTokenInvalid'" class="ion-padding-start">
+              Recovery Code invalid
+            </p>
+          </ion-text>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col class="ion-margin-top">
+          <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
+        </ion-col>
+      </ion-row>
+
+    </ion-grid>
+  </form>
+
+</ion-content>
+
+<ion-content *ngIf="recoveryToken" class="ion-padding ion-text-center">
+  <p>Registration successful</p>
+  <ng-container *ngIf="recoveryToken !== 'OK'">
+    <p>Your new recovery code:</p>
+    <code>{{recoveryToken}}</code>
+    <p>If you ever need to recover acccess to your account, you need this code.
+      You should print it or write it down, and store it in a safe place.
+      We strongly recommend that you don't store your recovery code on a device.
+    </p>
+  </ng-container>
+  <ion-button color="secondary" expand="block" routerDirection="root" routerLink="/login">Go to Login</ion-button>
+</ion-content>
+

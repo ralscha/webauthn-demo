@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      Protected Area
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h1>Logged In</h1>
+  <p>{{secret}}</p>
+
+  <ion-button (click)="requestRegisterAdditionalAuthenticator()" fill="clear">Register additional Authenticator
+  </ion-button>
+  <p *ngIf="registrationAddToken">
+    Open the application on the other device and go to Registration. Enter the following
+    code in the field "Add Authenticator Code" and register the authenticator. The new authenticator
+    will be assigned to this account.
+  </p>
+  <div class="ion-text-center">
+    <code>{{registrationAddToken}}</code>
+  </div>
+  <div class="ion-margin-top">
+    <ion-button (click)="logout()" class="ion-margin-top">Logout</ion-button>
+  </div>
+</ion-content>
