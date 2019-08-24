@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.data.RelyingPartyIdentity;
@@ -16,6 +17,7 @@ import com.yubico.webauthn.data.RelyingPartyIdentity;
 import ch.rasc.webauthn.security.JooqCredentialRepository;
 
 @SpringBootApplication
+@EnableScheduling
 public class Application {
 
   public static final Logger log = LoggerFactory.getLogger("app");
