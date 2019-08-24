@@ -12,47 +12,47 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class AppProperties {
 
-	@NotEmpty
-	private String relyingPartyId;
+  @NotEmpty
+  private String relyingPartyId;
 
-	@NotEmpty
-	private String relyingPartyName;
+  @NotEmpty
+  private String relyingPartyName;
 
-	private URL relyingPartyIcon;
+  private URL relyingPartyIcon;
 
-	@NotEmpty
-	private Set<String> relyingPartyOrigins;
+  @NotEmpty
+  private Set<String> relyingPartyOrigins;
 
-	public String getRelyingPartyId() {
-		return this.relyingPartyId;
-	}
+  public String getRelyingPartyId() {
+    return this.relyingPartyId;
+  }
 
-	public void setRelyingPartyId(String relyingPartyId) {
-		this.relyingPartyId = relyingPartyId;
-	}
+  public void setRelyingPartyId(String relyingPartyId) {
+    this.relyingPartyId = relyingPartyId;
+  }
 
-	public String getRelyingPartyName() {
-		return this.relyingPartyName;
-	}
+  public String getRelyingPartyName() {
+    return this.relyingPartyName;
+  }
 
-	public void setRelyingPartyName(String relyingPartyName) {
-		this.relyingPartyName = relyingPartyName;
-	}
+  public void setRelyingPartyName(String relyingPartyName) {
+    this.relyingPartyName = relyingPartyName;
+  }
 
-	public URL getRelyingPartyIcon() {
-		return this.relyingPartyIcon;
-	}
+  public URL getRelyingPartyIcon() {
+    return this.relyingPartyIcon;
+  }
 
-	public void setRelyingPartyIcon(URL relyingPartyIcon) {
-		this.relyingPartyIcon = relyingPartyIcon;
-	}
+  public void setRelyingPartyIcon(URL relyingPartyIcon) {
+    this.relyingPartyIcon = relyingPartyIcon;
+  }
 
-	public Set<String> getRelyingPartyOrigins() {
-		return this.relyingPartyOrigins;
-	}
+  public Set<String> getRelyingPartyOrigins() {
+    return this.relyingPartyOrigins;
+  }
 
-	public void setRelyingPartyOrigins(Set<String> relyingPartyOrigins) {
-		this.relyingPartyOrigins = relyingPartyOrigins;
-	}
+  public void setRelyingPartyOrigins(Set<String> relyingPartyOrigins) {
+    this.relyingPartyOrigins = relyingPartyOrigins;
+  }
 
 }

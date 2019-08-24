@@ -9,11 +9,11 @@ import ch.rasc.webauthn.security.JooqUserDetails;
 @RestController
 public class TestService {
 
-	@GetMapping("/secret")
-	public String secretMessage(@AuthenticationPrincipal JooqUserDetails user) {
-		System.out.println("user id:  " + user.getUserDbId());
-		System.out.println("username: " + user.getUsername());
-		return "a secret message";
-	}
+  @GetMapping("/secret")
+  public String secretMessage(@AuthenticationPrincipal JooqUserDetails user) {
+    System.out.println("user id:  " + user.getUserDbId());
+    System.out.println("username: " + user.getUsername());
+    return "a secret message";
+  }
 
 }

@@ -18,8 +18,7 @@ public class JooqUserDetailsService implements UserDetailsService {
   }
 
   @Override
-  public UserDetails loadUserByUsername(String userId)
-      throws UsernameNotFoundException {
+  public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
 
     var appUserRecord = this.dsl.selectFrom(APP_USER)
         .where(APP_USER.ID.eq(Long.valueOf(userId))).limit(1).fetchOne();
