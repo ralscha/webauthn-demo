@@ -18,25 +18,24 @@ import ch.rasc.webauthn.security.JooqCredentialRepository;
 @SpringBootApplication
 public class Application {
 
-	public static final Logger log = LoggerFactory.getLogger("app");
+  public static final Logger log = LoggerFactory.getLogger("app");
 
-	public static void main(String[] args) {
-		TimeZone.setDefault(TimeZone.getTimeZone(ZoneOffset.UTC));
-		SpringApplication.run(Application.class, args);
-	}
+  public static void main(String[] args) {
+    TimeZone.setDefault(TimeZone.getTimeZone(ZoneOffset.UTC));
+    SpringApplication.run(Application.class, args);
+  }
 
-	@Bean
-	public RelyingParty relyingParty(JooqCredentialRepository credentialRepository,
-			AppProperties appProperties) {
+  @Bean
+  public RelyingParty relyingParty(JooqCredentialRepository credentialRepository,
+      AppProperties appProperties) {
 
-		RelyingPartyIdentity rpIdentity = RelyingPartyIdentity.builder()
-				.id(appProperties.getRelyingPartyId())
-				.name(appProperties.getRelyingPartyName())
-				.icon(Optional.ofNullable(appProperties.getRelyingPartyIcon())).build();
+    RelyingPartyIdentity rpIdentity = RelyingPartyIdentity.builder()
+        .id(appProperties.getRelyingPartyId()).name(appProperties.getRelyingPartyName())
+        .icon(Optional.ofNullable(appProperties.getRelyingPartyIcon())).build();
 
-		return RelyingParty.builder().identity(rpIdentity)
-				.credentialRepository(credentialRepository)
-				.origins(appProperties.getRelyingPartyOrigins()).build();
-	}
+    return RelyingParty.builder().identity(rpIdentity)
+        .credentialRepository(credentialRepository)
+        .origins(appProperties.getRelyingPartyOrigins()).build();
+  }
 
 }

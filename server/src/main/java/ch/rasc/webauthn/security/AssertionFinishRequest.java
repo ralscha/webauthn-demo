@@ -8,23 +8,23 @@ import com.yubico.webauthn.data.PublicKeyCredential;
 
 public class AssertionFinishRequest {
 
-	private final String assertionId;
+  private final String assertionId;
 
-	private final PublicKeyCredential<AuthenticatorAssertionResponse, ClientAssertionExtensionOutputs> credential;
+  private final PublicKeyCredential<AuthenticatorAssertionResponse, ClientAssertionExtensionOutputs> credential;
 
-	@JsonCreator
-	public AssertionFinishRequest(@JsonProperty("assertionId") String assertionId,
-			@JsonProperty("credential") PublicKeyCredential<AuthenticatorAssertionResponse, ClientAssertionExtensionOutputs> credential) {
-		this.assertionId = assertionId;
-		this.credential = credential;
-	}
+  @JsonCreator
+  public AssertionFinishRequest(@JsonProperty("assertionId") String assertionId,
+      @JsonProperty("credential") PublicKeyCredential<AuthenticatorAssertionResponse, ClientAssertionExtensionOutputs> credential) {
+    this.assertionId = assertionId;
+    this.credential = credential;
+  }
 
-	public String getAssertionId() {
-		return this.assertionId;
-	}
+  public String getAssertionId() {
+    return this.assertionId;
+  }
 
-	public PublicKeyCredential<AuthenticatorAssertionResponse, ClientAssertionExtensionOutputs> getCredential() {
-		return this.credential;
-	}
+  public PublicKeyCredential<AuthenticatorAssertionResponse, ClientAssertionExtensionOutputs> getCredential() {
+    return this.credential;
+  }
 
 }

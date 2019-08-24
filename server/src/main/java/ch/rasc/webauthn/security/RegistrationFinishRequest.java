@@ -8,23 +8,23 @@ import com.yubico.webauthn.data.PublicKeyCredential;
 
 public class RegistrationFinishRequest {
 
-	private final String registrationId;
+  private final String registrationId;
 
-	private final PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> credential;
+  private final PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> credential;
 
-	@JsonCreator
-	public RegistrationFinishRequest(@JsonProperty("registrationId") String registrationId,
-			@JsonProperty("credential") PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> credential) {
-		this.registrationId = registrationId;
-		this.credential = credential;
-	}
+  @JsonCreator
+  public RegistrationFinishRequest(@JsonProperty("registrationId") String registrationId,
+      @JsonProperty("credential") PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> credential) {
+    this.registrationId = registrationId;
+    this.credential = credential;
+  }
 
-	public String getRegistrationId() {
-		return this.registrationId;
-	}
+  public String getRegistrationId() {
+    return this.registrationId;
+  }
 
-	public PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> getCredential() {
-		return this.credential;
-	}
+  public PublicKeyCredential<AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs> getCredential() {
+    return this.credential;
+  }
 
 }
