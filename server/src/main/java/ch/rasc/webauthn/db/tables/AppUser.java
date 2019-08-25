@@ -22,9 +22,9 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
 
-import ch.rasc.webauthn.db.DefaultSchema;
 import ch.rasc.webauthn.db.Indexes;
 import ch.rasc.webauthn.db.Keys;
+import ch.rasc.webauthn.db.Webauthn;
 import ch.rasc.webauthn.db.tables.records.AppUserRecord;
 
 /**
@@ -35,10 +35,10 @@ import ch.rasc.webauthn.db.tables.records.AppUserRecord;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class AppUser extends TableImpl<AppUserRecord> {
 
-  private static final long serialVersionUID = -1081655756;
+  private static final long serialVersionUID = 2050256806;
 
   /**
-   * The reference instance of <code>APP_USER</code>
+   * The reference instance of <code>webauthn.app_user</code>
    */
   public static final AppUser APP_USER = new AppUser();
 
@@ -51,57 +51,67 @@ public class AppUser extends TableImpl<AppUserRecord> {
   }
 
   /**
-   * The column <code>APP_USER.ID</code>.
+   * The column <code>webauthn.app_user.id</code>.
    */
-  public final TableField<AppUserRecord, Long> ID = createField("ID",
+  public final TableField<AppUserRecord, Long> ID = createField("id",
       org.jooq.impl.SQLDataType.BIGINT.nullable(false).identity(true), this, "");
 
   /**
-   * The column <code>APP_USER.USERNAME</code>.
+   * The column <code>webauthn.app_user.username</code>.
    */
-  public final TableField<AppUserRecord, String> USERNAME = createField("USERNAME",
+  public final TableField<AppUserRecord, String> USERNAME = createField("username",
       org.jooq.impl.SQLDataType.VARCHAR(255).nullable(false), this, "");
 
   /**
-   * The column <code>APP_USER.RECOVERY_TOKEN</code>.
+   * The column <code>webauthn.app_user.recovery_token</code>.
    */
   public final TableField<AppUserRecord, byte[]> RECOVERY_TOKEN = createField(
-      "RECOVERY_TOKEN", org.jooq.impl.SQLDataType.VARBINARY, this, "");
+      "recovery_token", org.jooq.impl.SQLDataType.BINARY(16).defaultValue(
+          org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.BINARY)),
+      this, "");
 
   /**
-   * The column <code>APP_USER.REGISTRATION_START</code>.
+   * The column <code>webauthn.app_user.registration_start</code>.
    */
   public final TableField<AppUserRecord, LocalDateTime> REGISTRATION_START = createField(
-      "REGISTRATION_START", org.jooq.impl.SQLDataType.LOCALDATETIME, this, "");
+      "registration_start",
+      org.jooq.impl.SQLDataType.LOCALDATETIME.defaultValue(
+          org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.LOCALDATETIME)),
+      this, "");
 
   /**
-   * The column <code>APP_USER.REGISTRATION_ADD_START</code>.
+   * The column <code>webauthn.app_user.registration_add_start</code>.
    */
   public final TableField<AppUserRecord, LocalDateTime> REGISTRATION_ADD_START = createField(
-      "REGISTRATION_ADD_START", org.jooq.impl.SQLDataType.LOCALDATETIME, this, "");
+      "registration_add_start",
+      org.jooq.impl.SQLDataType.LOCALDATETIME.defaultValue(
+          org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.LOCALDATETIME)),
+      this, "");
 
   /**
-   * The column <code>APP_USER.REGISTRATION_ADD_TOKEN</code>.
+   * The column <code>webauthn.app_user.registration_add_token</code>.
    */
   public final TableField<AppUserRecord, byte[]> REGISTRATION_ADD_TOKEN = createField(
-      "REGISTRATION_ADD_TOKEN", org.jooq.impl.SQLDataType.VARBINARY, this, "");
+      "registration_add_token", org.jooq.impl.SQLDataType.BINARY(16).defaultValue(
+          org.jooq.impl.DSL.inline("NULL", org.jooq.impl.SQLDataType.BINARY)),
+      this, "");
 
   /**
-   * Create a <code>APP_USER</code> table reference
+   * Create a <code>webauthn.app_user</code> table reference
    */
   public AppUser() {
-    this(DSL.name("APP_USER"), null);
+    this(DSL.name("app_user"), null);
   }
 
   /**
-   * Create an aliased <code>APP_USER</code> table reference
+   * Create an aliased <code>webauthn.app_user</code> table reference
    */
   public AppUser(String alias) {
     this(DSL.name(alias), APP_USER);
   }
 
   /**
-   * Create an aliased <code>APP_USER</code> table reference
+   * Create an aliased <code>webauthn.app_user</code> table reference
    */
   public AppUser(Name alias) {
     this(alias, APP_USER);
@@ -124,7 +134,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
    */
   @Override
   public Schema getSchema() {
-    return DefaultSchema.DEFAULT_SCHEMA;
+    return Webauthn.WEBAUTHN;
   }
 
   /**
@@ -132,7 +142,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
    */
   @Override
   public List<Index> getIndexes() {
-    return Arrays.<Index>asList(Indexes.CONSTRAINT_INDEX_7, Indexes.PRIMARY_KEY_7);
+    return Arrays.<Index>asList(Indexes.APP_USER_PRIMARY, Indexes.APP_USER_USERNAME);
   }
 
   /**
@@ -148,7 +158,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
    */
   @Override
   public UniqueKey<AppUserRecord> getPrimaryKey() {
-    return Keys.CONSTRAINT_7;
+    return Keys.KEY_APP_USER_PRIMARY;
   }
 
   /**
@@ -156,7 +166,8 @@ public class AppUser extends TableImpl<AppUserRecord> {
    */
   @Override
   public List<UniqueKey<AppUserRecord>> getKeys() {
-    return Arrays.<UniqueKey<AppUserRecord>>asList(Keys.CONSTRAINT_7, Keys.CONSTRAINT_76);
+    return Arrays.<UniqueKey<AppUserRecord>>asList(Keys.KEY_APP_USER_PRIMARY,
+        Keys.KEY_APP_USER_USERNAME);
   }
 
   /**

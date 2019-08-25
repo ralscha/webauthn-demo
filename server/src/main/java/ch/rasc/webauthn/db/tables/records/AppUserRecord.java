@@ -24,87 +24,87 @@ import ch.rasc.webauthn.db.tables.AppUser;
 public class AppUserRecord extends UpdatableRecordImpl<AppUserRecord>
     implements Record6<Long, String, byte[], LocalDateTime, LocalDateTime, byte[]> {
 
-  private static final long serialVersionUID = 1172626999;
+  private static final long serialVersionUID = 1353066315;
 
   /**
-   * Setter for <code>APP_USER.ID</code>.
+   * Setter for <code>webauthn.app_user.id</code>.
    */
   public void setId(Long value) {
     set(0, value);
   }
 
   /**
-   * Getter for <code>APP_USER.ID</code>.
+   * Getter for <code>webauthn.app_user.id</code>.
    */
   public Long getId() {
     return (Long) get(0);
   }
 
   /**
-   * Setter for <code>APP_USER.USERNAME</code>.
+   * Setter for <code>webauthn.app_user.username</code>.
    */
   public void setUsername(String value) {
     set(1, value);
   }
 
   /**
-   * Getter for <code>APP_USER.USERNAME</code>.
+   * Getter for <code>webauthn.app_user.username</code>.
    */
   public String getUsername() {
     return (String) get(1);
   }
 
   /**
-   * Setter for <code>APP_USER.RECOVERY_TOKEN</code>.
+   * Setter for <code>webauthn.app_user.recovery_token</code>.
    */
   public void setRecoveryToken(byte... value) {
     set(2, value);
   }
 
   /**
-   * Getter for <code>APP_USER.RECOVERY_TOKEN</code>.
+   * Getter for <code>webauthn.app_user.recovery_token</code>.
    */
   public byte[] getRecoveryToken() {
     return (byte[]) get(2);
   }
 
   /**
-   * Setter for <code>APP_USER.REGISTRATION_START</code>.
+   * Setter for <code>webauthn.app_user.registration_start</code>.
    */
   public void setRegistrationStart(LocalDateTime value) {
     set(3, value);
   }
 
   /**
-   * Getter for <code>APP_USER.REGISTRATION_START</code>.
+   * Getter for <code>webauthn.app_user.registration_start</code>.
    */
   public LocalDateTime getRegistrationStart() {
     return (LocalDateTime) get(3);
   }
 
   /**
-   * Setter for <code>APP_USER.REGISTRATION_ADD_START</code>.
+   * Setter for <code>webauthn.app_user.registration_add_start</code>.
    */
   public void setRegistrationAddStart(LocalDateTime value) {
     set(4, value);
   }
 
   /**
-   * Getter for <code>APP_USER.REGISTRATION_ADD_START</code>.
+   * Getter for <code>webauthn.app_user.registration_add_start</code>.
    */
   public LocalDateTime getRegistrationAddStart() {
     return (LocalDateTime) get(4);
   }
 
   /**
-   * Setter for <code>APP_USER.REGISTRATION_ADD_TOKEN</code>.
+   * Setter for <code>webauthn.app_user.registration_add_token</code>.
    */
   public void setRegistrationAddToken(byte... value) {
     set(5, value);
   }
 
   /**
-   * Getter for <code>APP_USER.REGISTRATION_ADD_TOKEN</code>.
+   * Getter for <code>webauthn.app_user.registration_add_token</code>.
    */
   public byte[] getRegistrationAddToken() {
     return (byte[]) get(5);

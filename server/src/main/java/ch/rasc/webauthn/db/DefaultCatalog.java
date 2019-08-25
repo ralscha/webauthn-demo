@@ -20,7 +20,7 @@ import org.jooq.impl.CatalogImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DefaultCatalog extends CatalogImpl {
 
-  private static final long serialVersionUID = 1424243312;
+  private static final long serialVersionUID = 306692743;
 
   /**
    * The reference instance of <code></code>
@@ -28,9 +28,9 @@ public class DefaultCatalog extends CatalogImpl {
   public static final DefaultCatalog DEFAULT_CATALOG = new DefaultCatalog();
 
   /**
-   * The schema <code></code>.
+   * The schema <code>webauthn</code>.
    */
-  public final DefaultSchema DEFAULT_SCHEMA = ch.rasc.webauthn.db.DefaultSchema.DEFAULT_SCHEMA;
+  public final Webauthn WEBAUTHN = ch.rasc.webauthn.db.Webauthn.WEBAUTHN;
 
   /**
    * No further instances allowed
@@ -47,6 +47,6 @@ public class DefaultCatalog extends CatalogImpl {
   }
 
   private final List<Schema> getSchemas0() {
-    return Arrays.<Schema>asList(DefaultSchema.DEFAULT_SCHEMA);
+    return Arrays.<Schema>asList(Webauthn.WEBAUTHN);
   }
 }
