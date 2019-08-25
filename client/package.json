@@ -6,6 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build-prod": "ng build --prod",
+    "postbuild-prod": "bread-compressor dist/app",
     "serve-dist": "ws --hostname localhost -d dist/app -p 1234 -o --log.format stats",
     "lint": "ng lint"
   },
@@ -32,6 +33,7 @@
     "@angular/language-service": "8.2.3",
     "@ionic/angular-toolkit": "2.0.0",
     "@types/node": "12.7.2",
+    "bread-compressor-cli": "1.0.7",
     "codelyzer": "5.1.0",
     "local-web-server": "3.0.7",
     "tslint": "5.19.0",

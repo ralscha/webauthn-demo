@@ -13,7 +13,7 @@ export class AuthService {
   }
 
   isAuthenticated(): Observable<boolean> {
-    return this.httpClient.get<void>('/authenticate', {
+    return this.httpClient.get<void>('authenticate', {
       withCredentials: true
     }).pipe(
       tap(() => this.loggedIn = true),
@@ -26,7 +26,7 @@ export class AuthService {
   }
 
   logout(): Observable<void> {
-    return this.httpClient.get<void>('/logout', {
+    return this.httpClient.get<void>('logout', {
       withCredentials: true
     }).pipe(tap(() => this.loggedIn = false));
   }
