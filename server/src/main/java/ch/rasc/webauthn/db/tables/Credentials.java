@@ -20,9 +20,9 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.TableImpl;
 
-import ch.rasc.webauthn.db.DefaultSchema;
 import ch.rasc.webauthn.db.Indexes;
 import ch.rasc.webauthn.db.Keys;
+import ch.rasc.webauthn.db.Webauthn;
 import ch.rasc.webauthn.db.tables.records.CredentialsRecord;
 
 /**
@@ -33,10 +33,10 @@ import ch.rasc.webauthn.db.tables.records.CredentialsRecord;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Credentials extends TableImpl<CredentialsRecord> {
 
-  private static final long serialVersionUID = -170078067;
+  private static final long serialVersionUID = 696617468;
 
   /**
-   * The reference instance of <code>CREDENTIALS</code>
+   * The reference instance of <code>webauthn.credentials</code>
    */
   public static final Credentials CREDENTIALS = new Credentials();
 
@@ -49,45 +49,46 @@ public class Credentials extends TableImpl<CredentialsRecord> {
   }
 
   /**
-   * The column <code>CREDENTIALS.ID</code>.
+   * The column <code>webauthn.credentials.id</code>.
    */
-  public final TableField<CredentialsRecord, byte[]> ID = createField("ID",
-      org.jooq.impl.SQLDataType.VARBINARY.nullable(false), this, "");
+  public final TableField<CredentialsRecord, byte[]> ID = createField("id",
+      org.jooq.impl.SQLDataType.VARBINARY(128).nullable(false), this, "");
 
   /**
-   * The column <code>CREDENTIALS.APP_USER_ID</code>.
+   * The column <code>webauthn.credentials.app_user_id</code>.
    */
   public final TableField<CredentialsRecord, Long> APP_USER_ID = createField(
-      "APP_USER_ID", org.jooq.impl.SQLDataType.BIGINT.nullable(false), this, "");
+      "app_user_id", org.jooq.impl.SQLDataType.BIGINT.nullable(false), this, "");
 
   /**
-   * The column <code>CREDENTIALS.COUNT</code>.
+   * The column <code>webauthn.credentials.count</code>.
    */
-  public final TableField<CredentialsRecord, Long> COUNT = createField("COUNT",
+  public final TableField<CredentialsRecord, Long> COUNT = createField("count",
       org.jooq.impl.SQLDataType.BIGINT.nullable(false), this, "");
 
   /**
-   * The column <code>CREDENTIALS.PUBLIC_KEY_COSE</code>.
+   * The column <code>webauthn.credentials.public_key_cose</code>.
    */
   public final TableField<CredentialsRecord, byte[]> PUBLIC_KEY_COSE = createField(
-      "PUBLIC_KEY_COSE", org.jooq.impl.SQLDataType.VARBINARY.nullable(false), this, "");
+      "public_key_cose", org.jooq.impl.SQLDataType.VARBINARY(255).nullable(false), this,
+      "");
 
   /**
-   * Create a <code>CREDENTIALS</code> table reference
+   * Create a <code>webauthn.credentials</code> table reference
    */
   public Credentials() {
-    this(DSL.name("CREDENTIALS"), null);
+    this(DSL.name("credentials"), null);
   }
 
   /**
-   * Create an aliased <code>CREDENTIALS</code> table reference
+   * Create an aliased <code>webauthn.credentials</code> table reference
    */
   public Credentials(String alias) {
     this(DSL.name(alias), CREDENTIALS);
   }
 
   /**
-   * Create an aliased <code>CREDENTIALS</code> table reference
+   * Create an aliased <code>webauthn.credentials</code> table reference
    */
   public Credentials(Name alias) {
     this(alias, CREDENTIALS);
@@ -112,7 +113,7 @@ public class Credentials extends TableImpl<CredentialsRecord> {
    */
   @Override
   public Schema getSchema() {
-    return DefaultSchema.DEFAULT_SCHEMA;
+    return Webauthn.WEBAUTHN;
   }
 
   /**
@@ -120,7 +121,8 @@ public class Credentials extends TableImpl<CredentialsRecord> {
    */
   @Override
   public List<Index> getIndexes() {
-    return Arrays.<Index>asList(Indexes.CONSTRAINT_INDEX_9, Indexes.PRIMARY_KEY_9);
+    return Arrays.<Index>asList(Indexes.CREDENTIALS_APP_USER_ID,
+        Indexes.CREDENTIALS_PRIMARY);
   }
 
   /**
@@ -128,7 +130,7 @@ public class Credentials extends TableImpl<CredentialsRecord> {
    */
   @Override
   public UniqueKey<CredentialsRecord> getPrimaryKey() {
-    return Keys.CONSTRAINT_9;
+    return Keys.KEY_CREDENTIALS_PRIMARY;
   }
 
   /**
@@ -136,7 +138,7 @@ public class Credentials extends TableImpl<CredentialsRecord> {
    */
   @Override
   public List<UniqueKey<CredentialsRecord>> getKeys() {
-    return Arrays.<UniqueKey<CredentialsRecord>>asList(Keys.CONSTRAINT_9);
+    return Arrays.<UniqueKey<CredentialsRecord>>asList(Keys.KEY_CREDENTIALS_PRIMARY);
   }
 
   /**
@@ -144,11 +146,11 @@ public class Credentials extends TableImpl<CredentialsRecord> {
    */
   @Override
   public List<ForeignKey<CredentialsRecord, ?>> getReferences() {
-    return Arrays.<ForeignKey<CredentialsRecord, ?>>asList(Keys.CONSTRAINT_91);
+    return Arrays.<ForeignKey<CredentialsRecord, ?>>asList(Keys.CREDENTIALS_IBFK_1);
   }
 
   public AppUser appUser() {
-    return new AppUser(this, Keys.CONSTRAINT_91);
+    return new AppUser(this, Keys.CREDENTIALS_IBFK_1);
   }
 
   /**
