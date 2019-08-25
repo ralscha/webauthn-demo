@@ -23,7 +23,7 @@ export class LoginPage {
     const loading = await this.messagesService.showLoading('Initiate login ...');
     await loading.present();
 
-    this.httpClient.post<AssertionStartResponse>('/assertion/start', username)
+    this.httpClient.post<AssertionStartResponse>('assertion/start', username)
       .subscribe(response => this.handleAssertionStart(response), () => {
         loading.dismiss();
         this.messagesService.showErrorToast('Login failed');
@@ -65,7 +65,7 @@ export class LoginPage {
     const loading = await this.messagesService.showLoading('Validating ...');
     await loading.present();
 
-    this.httpClient.post<boolean>('/assertion/finish', assertionResponse, {
+    this.httpClient.post<boolean>('assertion/finish', assertionResponse, {
       withCredentials: true
     }).subscribe(ok => {
       if (ok) {

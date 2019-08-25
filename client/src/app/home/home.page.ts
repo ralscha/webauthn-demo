@@ -18,7 +18,7 @@ export class HomePage implements OnInit {
   }
 
   requestRegisterAdditionalAuthenticator() {
-    this.httpClient.get('/registration-add', {
+    this.httpClient.get('registration-add', {
       responseType: 'text',
       withCredentials: true
     }).subscribe(text => this.registrationAddToken = text);
@@ -29,7 +29,7 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.httpClient.get('/secret', {
+    this.httpClient.get('secret', {
       responseType: 'text',
       withCredentials: true
     }).subscribe(text => this.secret = text);

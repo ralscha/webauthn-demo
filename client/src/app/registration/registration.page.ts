@@ -45,7 +45,7 @@ export class RegistrationPage {
       body = body.set('recoveryToken', recovery);
     }
 
-    this.httpClient.post<RegistrationStartResponse>('/registration/start', body)
+    this.httpClient.post<RegistrationStartResponse>('registration/start', body)
       .subscribe(async (response) => {
         await loading.dismiss();
         if (response.status === 'OK') {
@@ -104,7 +104,7 @@ export class RegistrationPage {
     const loading = await this.messagesService.showLoading('Finishing registration ...');
     await loading.present();
 
-    this.httpClient.post('/registration/finish', credentialResponse, {responseType: 'text'})
+    this.httpClient.post('registration/finish', credentialResponse, {responseType: 'text'})
       .subscribe(recoveryToken => {
         if (recoveryToken) {
           this.recoveryToken = recoveryToken;
