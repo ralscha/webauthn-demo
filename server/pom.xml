@@ -201,7 +201,7 @@
 											<javaTimeTypes>true</javaTimeTypes>
 										</generate>
 										<database>
-											<name>org.jooq.meta.mysql.MySQLDatabase</name>
+											<name>org.jooq.meta.mariadb.MariaDBDatabase</name>
 											<includes>.*</includes>
 											<inputSchema>webauthn</inputSchema>
 											<excludes>flyway_schema_history</excludes>
