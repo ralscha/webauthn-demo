@@ -6,9 +6,11 @@ import java.util.Set;
 import javax.validation.constraints.NotEmpty;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties(prefix = "app")
+@Component
 @Validated
 public class AppProperties {
 

@@ -1,15 +1,15 @@
-package ch.rasc.webauthn.security;
+package ch.rasc.webauthn.security.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.yubico.webauthn.data.PublicKeyCredentialCreationOptions;
 
 public class RegistrationStartResponse {
 
-  enum Status {
+  public enum Status {
     OK, USERNAME_TAKEN, TOKEN_INVALID
   }
 
-  enum Mode {
+  public enum Mode {
     NEW, ADD, RECOVERY
   }
 

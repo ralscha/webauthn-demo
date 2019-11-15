@@ -16,6 +16,8 @@ import com.yubico.webauthn.RegisteredCredential;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
 
+import ch.rasc.webauthn.util.BytesUtil;
+
 @Component
 public class JooqCredentialRepository implements CredentialRepository {
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ch.rasc.webauthn.security;
+package ch.rasc.webauthn.util;
 
 import java.util.Arrays;
 
@@ -36,7 +36,8 @@ public class Base58 {
    * @param input the bytes to encode
    * @return the base58-encoded string
    */
-  public static String encode(byte[] input) {
+  public static String encode(byte[] inputValue) {
+    byte[] input = inputValue;
     if (input.length == 0) {
       return "";
     }

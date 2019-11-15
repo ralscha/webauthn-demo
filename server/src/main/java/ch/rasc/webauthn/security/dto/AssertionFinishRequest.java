@@ -1,4 +1,4 @@
-package ch.rasc.webauthn.security;
+package ch.rasc.webauthn.security.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
