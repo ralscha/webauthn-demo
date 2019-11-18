@@ -197,59 +197,6 @@
 			</build>
 		</profile>
 
-		<profile>
-			<id>jooq-db</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.jooq</groupId>
-						<artifactId>jooq-codegen-maven</artifactId>
-						<version>3.11.11</version>
-						<executions>
-							<execution>
-								<id>generate-jooq-sources</id>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>generate</goal>
-								</goals>
-								<configuration>
-									<jdbc>
-										<url>jdbc:mariadb://localhost:3306/webauthn?serverTimezone=UTC&amp;useMysqlMetadata=true</url>
-										<user>root</user>
-										<password></password>
-									</jdbc>
-									<generator>
-										<generate>
-											<pojos>false</pojos>
-											<daos>false</daos>
-											<javaTimeTypes>true</javaTimeTypes>
-										</generate>
-										<database>
-											<name>org.jooq.meta.mysql.MySQLDatabase</name>
-											<includes>.*</includes>
-											<inputSchema>webauthn</inputSchema>
-											<excludes>flyway_schema_history</excludes>
-										</database>
-										<target>
-											<clean>true</clean>
-											<packageName>ch.rasc.webauthn.db</packageName>
-											<directory>src/main/java</directory>
-										</target>
-									</generator>
-								</configuration>
-							</execution>
-						</executions>
-						<dependencies>
-							<dependency>
-								<groupId>org.jooq</groupId>
-								<artifactId>jooq-meta-extensions</artifactId>
-								<version>3.11.11</version>
-							</dependency>
-						</dependencies>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 	</profiles>
 
 </project>
