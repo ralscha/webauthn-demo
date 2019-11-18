@@ -1,8 +1,9 @@
-package ch.rasc.webauthn.security;
+package ch.rasc.webauthn.util;
 
 public class BytesUtil {
 
-  public static byte[] longToBytes(long l) {
+  public static byte[] longToBytes(long longValue) {
+    long l = longValue;
     byte[] result = new byte[8];
     for (int i = 7; i >= 0; i--) {
       result[i] = (byte) (l & 0xFF);

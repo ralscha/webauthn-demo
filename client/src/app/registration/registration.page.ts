@@ -1,8 +1,8 @@
 import {Component} from '@angular/core';
 import {NavController} from '@ionic/angular';
-import {base64ToUint8Array, uint8ArrayTobase64} from '../util';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessagesService} from '../messages.service';
+import {create} from '@github/webauthn-json';
 
 @Component({
   selector: 'app-registration',
@@ -66,39 +66,21 @@ export class RegistrationPage {
   }
 
   private async createCredentials(response) {
-    const createOptions = response.publicKeyCredentialCreationOptions;
-
-    createOptions.challenge = base64ToUint8Array(createOptions.challenge);
-    createOptions.user.id = base64ToUint8Array(createOptions.user.id);
-
-    if (createOptions.excludeCredentials) {
-      for (const excludeCredential of createOptions.excludeCredentials) {
-        excludeCredential.id = base64ToUint8Array(excludeCredential.id);
-      }
-    }
-    // @ts-ignore
-    const credential = await navigator.credentials.create({
-      publicKey: createOptions
+    const credential = await create({
+      publicKey: response.publicKeyCredentialCreationOptions
     });
 
-    let clientExtensionResults = {};
     try {
-      clientExtensionResults = credential.getClientExtensionResults();
+      // @ts-ignore
+      credential.clientExtensionResults = credential.getClientExtensionResults();
     } catch (e) {
-      console.error('getClientExtensionResults failed', e);
+      // @ts-ignore
+      credential.clientExtensionResults = {};
     }
 
     const credentialResponse = {
       registrationId: response.registrationId,
-      credential: {
-        id: credential.id,
-        type: credential.type,
-        clientExtensionResults,
-        response: {
-          attestationObject: uint8ArrayTobase64(credential.response.attestationObject),
-          clientDataJSON: uint8ArrayTobase64(credential.response.clientDataJSON)
-        }
-      }
+      credential
     };
 
     const loading = await this.messagesService.showLoading('Finishing registration ...');

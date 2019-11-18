@@ -6,13 +6,10 @@ import static ch.rasc.webauthn.db.tables.Credentials.CREDENTIALS;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import org.jooq.DSLContext;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.yubico.webauthn.AssertionRequest;
 import com.yubico.webauthn.AssertionResult;
 import com.yubico.webauthn.FinishAssertionOptions;
 import com.yubico.webauthn.FinishRegistrationOptions;
@@ -40,7 +38,13 @@ import com.yubico.webauthn.exception.AssertionFailedException;
 import com.yubico.webauthn.exception.RegistrationFailedException;
 
 import ch.rasc.webauthn.Application;
-import ch.rasc.webauthn.security.RegistrationStartResponse.Mode;
+import ch.rasc.webauthn.security.dto.AssertionFinishRequest;
+import ch.rasc.webauthn.security.dto.AssertionStartResponse;
+import ch.rasc.webauthn.security.dto.RegistrationFinishRequest;
+import ch.rasc.webauthn.security.dto.RegistrationStartResponse;
+import ch.rasc.webauthn.security.dto.RegistrationStartResponse.Mode;
+import ch.rasc.webauthn.util.Base58;
+import ch.rasc.webauthn.util.BytesUtil;
 
 @RestController
 @Validated
@@ -77,13 +81,13 @@ public class AuthController {
   }
 
   @GetMapping("/registration-add")
-  public String registrationAdd(@AuthenticationPrincipal JooqUserDetails user) {
+  public String registrationAdd(@AuthenticationPrincipal AppUserDetail user) {
     byte[] addToken = new byte[16];
     this.random.nextBytes(addToken);
 
     this.dsl.update(APP_USER).set(APP_USER.REGISTRATION_ADD_START, LocalDateTime.now())
         .set(APP_USER.REGISTRATION_ADD_TOKEN, addToken)
-        .where(APP_USER.ID.eq(user.getUserDbId())).execute();
+        .where(APP_USER.ID.eq(user.getAppUserId())).execute();
 
     return Base58.encode(addToken);
   }
@@ -114,7 +118,6 @@ public class AuthController {
           .getId();
       name = username;
       mode = Mode.NEW;
-
     }
     else if (registrationAddToken != null && !registrationAddToken.isEmpty()) {
       byte[] registrationAddTokenDecoded = null;
@@ -139,7 +142,6 @@ public class AuthController {
       userId = record.get(APP_USER.ID);
       name = record.get(APP_USER.USERNAME);
       mode = Mode.ADD;
-
     }
     else if (recoveryToken != null && !recoveryToken.isEmpty()) {
       byte[] recoveryTokenDecoded = null;
@@ -166,7 +168,6 @@ public class AuthController {
 
       this.dsl.deleteFrom(CREDENTIALS).where(CREDENTIALS.APP_USER_ID.eq(userId))
           .execute();
-
     }
 
     if (mode != null) {
@@ -247,9 +248,13 @@ public class AuthController {
     byte[] assertionId = new byte[16];
     this.random.nextBytes(assertionId);
 
-    AssertionStartResponse response = new AssertionStartResponse(
-        Base64.getEncoder().encodeToString(assertionId), this.relyingParty
-            .startAssertion(StartAssertionOptions.builder().username(username).build()));
+    String assertionIdBase64 = Base64.getEncoder().encodeToString(assertionId);
+    AssertionRequest assertionRequest = this.relyingParty
+        .startAssertion(StartAssertionOptions.builder().username(username).build());
+
+    AssertionStartResponse response = new AssertionStartResponse(assertionIdBase64,
+        assertionRequest);
+
     this.assertionCache.put(response.getAssertionId(), response);
     return response;
   }
@@ -274,11 +279,16 @@ public class AuthController {
         }
 
         long userId = BytesUtil.bytesToLong(result.getUserHandle().getBytes());
-        Authentication auth = new UsernamePasswordAuthenticationToken(userId,
-            Collections.singleton(new SimpleGrantedAuthority("USER")));
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        return true;
+        var appUserRecord = this.dsl.selectFrom(APP_USER).where(APP_USER.ID.eq(userId))
+            .fetchOne();
+        
+        if (appUserRecord != null) {
+          AppUserDetail userDetail = new AppUserDetail(appUserRecord,
+              new SimpleGrantedAuthority("USER"));
+          AppUserAuthentication auth = new AppUserAuthentication(userDetail);
+          SecurityContextHolder.getContext().setAuthentication(auth);
+          return true;
+        }
       }
     }
     catch (AssertionFailedException e) {
