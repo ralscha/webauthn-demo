@@ -32,7 +32,7 @@
     "@angular/compiler-cli": "9.0.0-rc.3",
     "@angular/language-service": "9.0.0-rc.3",
     "@ionic/angular-toolkit": "2.1.1",
-    "@types/node": "12.12.11",
+    "@types/node": "12.12.14",
     "bread-compressor-cli": "1.0.8",
     "codelyzer": "5.2.0",
     "local-web-server": "3.0.7",

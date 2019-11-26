@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>com.yubico</groupId>
 			<artifactId>webauthn-server-core</artifactId>
-			<version>1.6.0-RC1</version>
+			<version>1.6.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.httpcomponents</groupId>
