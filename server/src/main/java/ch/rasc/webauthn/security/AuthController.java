@@ -281,7 +281,7 @@ public class AuthController {
         long userId = BytesUtil.bytesToLong(result.getUserHandle().getBytes());
         var appUserRecord = this.dsl.selectFrom(APP_USER).where(APP_USER.ID.eq(userId))
             .fetchOne();
-        
+
         if (appUserRecord != null) {
           AppUserDetail userDetail = new AppUserDetail(appUserRecord,
               new SimpleGrantedAuthority("USER"));
