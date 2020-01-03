@@ -28,7 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.csrf().disable().logout(customizer -> {
+    http.csrf(customizer -> customizer.disable()).logout(customizer -> {
       customizer.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
       customizer.deleteCookies("JSESSIONID");
     }).authorizeRequests(customizer -> {
