@@ -99,6 +99,9 @@ export class RegistrationPage {
       }, () => loading.dismiss());
   }
 
+  selectSegment($event: Event) {
+    this.view = ($event.target as any).value;
+  }
 }
 
 interface RegistrationStartResponse {

@@ -9,8 +9,8 @@
 
 <ion-content *ngIf="!recoveryToken" class="ion-padding">
 
-  <ion-segment (ionChange)="view = $event.target.value">
-    <ion-segment-button checked value="new">
+  <ion-segment (ionChange)="selectSegment($event)">
+    <ion-segment-button value="new">
       <ion-label>New</ion-label>
     </ion-segment-button>
     <ion-segment-button value="add">
@@ -32,8 +32,9 @@
         <ion-col>
           <ion-item>
             <ion-label position="stacked">Username</ion-label>
-            <ion-input #username="ngModel" autocapitalize="off" autocomplete="username" name="username" ngModel required
-                       spellcheck="false" type="text"></ion-input>
+            <ion-input #username="ngModel" autocapitalize="off" autocomplete="username" name="username"
+                       ngModel [required]="true"
+                       [spellcheck]="false" type="text"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -73,7 +74,7 @@
           <ion-item>
             <ion-label position="stacked">Add Authenticator Code</ion-label>
             <ion-input #registrationAddCode="ngModel" autocapitalize="off" name="registrationAddCode" ngModel
-                       required spellcheck="false" type="text"></ion-input>
+                       [required]="true" [spellcheck]="false" type="text"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -112,8 +113,8 @@
         <ion-col>
           <ion-item>
             <ion-label position="stacked">Recovery Code</ion-label>
-            <ion-input #recoveryCode="ngModel" autocapitalize="off" name="recoveryCode" ngModel required
-                       spellcheck="false" type="text"></ion-input>
+            <ion-input #recoveryCode="ngModel" autocapitalize="off" name="recoveryCode" ngModel [required]="true"
+                       [spellcheck]="false" type="text"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
