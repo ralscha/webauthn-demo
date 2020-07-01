@@ -57,11 +57,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	    <dependency>
-	      <groupId>com.yubico</groupId>
-	      <artifactId>yubico-util</artifactId>
-	      <version>1.6.4</version>
-	    </dependency>		
+		<dependency>
+			<groupId>com.yubico</groupId>
+			<artifactId>yubico-util</artifactId>
+			<version>1.6.4</version>
+		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
@@ -205,11 +205,11 @@
 				</plugins>
 			</build>
 		</profile>
-		
-    <profile>
-      <id>production</id>
-      <build>
-        <plugins>
+
+		<profile>
+			<id>production</id>
+			<build>
+				<plugins>
 					<plugin>
 						<groupId>com.github.eirslett</groupId>
 						<artifactId>frontend-maven-plugin</artifactId>
@@ -268,9 +268,9 @@
 							</execution>
 						</executions>
 					</plugin>
-        </plugins>
-      </build>
-    </profile>		
+				</plugins>
+			</build>
+		</profile>
 
 	</profiles>
 
