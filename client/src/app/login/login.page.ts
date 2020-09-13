@@ -19,7 +19,8 @@ export class LoginPage {
               private readonly messagesService: MessagesService) {
   }
 
-  async login({username}) {
+  // tslint:disable-next-line:no-any
+  async login({username}: any): Promise<void> {
     const loading = await this.messagesService.showLoading('Initiate login ...');
     await loading.present();
 
@@ -30,7 +31,7 @@ export class LoginPage {
       }, () => loading.dismiss());
   }
 
-  private async handleAssertionStart(response) {
+  private async handleAssertionStart(response: AssertionStartResponse): Promise<void> {
     const credential = await get({
       publicKey: response.publicKeyCredentialRequestOptions
     });
@@ -68,5 +69,6 @@ export class LoginPage {
 
 interface AssertionStartResponse {
   assertionId: string;
+  // tslint:disable-next-line:no-any
   publicKeyCredentialRequestOptions: any;
 }

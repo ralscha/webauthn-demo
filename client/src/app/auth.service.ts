@@ -18,7 +18,7 @@ export class AuthService {
     }).pipe(
       tap(() => this.loggedIn = true),
       mapTo(true),
-      catchError(error => {
+      catchError(() => {
         this.loggedIn = false;
         return of(false);
       })

@@ -12,27 +12,34 @@ import {create} from '@github/webauthn-json';
 export class RegistrationPage {
   view = 'new';
 
-  submitError: string = null;
-  recoveryToken: string = null;
+  submitError: string | null = null;
+  recoveryToken: string | null = null;
 
   constructor(private readonly navCtrl: NavController,
               private readonly messagesService: MessagesService,
               private readonly httpClient: HttpClient) {
   }
 
-  registerNew(username: string) {
+  registerNew(username: string): void {
     this.register(username, null, null);
   }
 
-  registerAdd(registerAddToken: string) {
+  registerAdd(registerAddToken: string): void {
     this.register(null, registerAddToken, null);
   }
 
-  recover(recovery: string) {
+  recover(recovery: string): void {
     this.register(null, null, recovery);
   }
 
-  private async register(username: string, registrationAddToken: string, recovery: string) {
+  selectSegment($event: Event): void {
+    // tslint:disable-next-line:no-any
+    this.view = ($event.target as any).value;
+  }
+
+  private async register(username: string | null,
+                         registrationAddToken: string | null,
+                         recovery: string | null): Promise<void> {
     const loading = await this.messagesService.showLoading('Starting registration ...');
     await loading.present();
 
@@ -65,7 +72,7 @@ export class RegistrationPage {
       }, () => loading.dismiss());
   }
 
-  private async createCredentials(response) {
+  private async createCredentials(response: RegistrationStartResponse): Promise<void> {
     const credential = await create({
       publicKey: response.publicKeyCredentialCreationOptions
     });
@@ -98,15 +105,12 @@ export class RegistrationPage {
         this.messagesService.showErrorToast('Registration failed');
       }, () => loading.dismiss());
   }
-
-  selectSegment($event: Event) {
-    this.view = ($event.target as any).value;
-  }
 }
 
 interface RegistrationStartResponse {
   status: 'OK' | 'USERNAME_TAKEN' | 'TOKEN_INVALID';
   registrationId?: string;
+  // tslint:disable-next-line:no-any
   publicKeyCredentialCreationOptions: any;
 }
 

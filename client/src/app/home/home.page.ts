@@ -9,22 +9,22 @@ import {HttpClient} from '@angular/common/http';
   styleUrls: ['./home.page.scss']
 })
 export class HomePage implements OnInit {
-  secret: string = null;
-  registrationAddToken: string = null;
+  secret: string | null = null;
+  registrationAddToken: string | null = null;
 
   constructor(private readonly authService: AuthService,
               private readonly navCtrl: NavController,
               private readonly httpClient: HttpClient) {
   }
 
-  requestRegisterAdditionalAuthenticator() {
+  requestRegisterAdditionalAuthenticator(): void {
     this.httpClient.get('registration-add', {
       responseType: 'text',
       withCredentials: true
     }).subscribe(text => this.registrationAddToken = text);
   }
 
-  async logout() {
+  async logout(): Promise<void> {
     this.authService.logout().subscribe(() => this.navCtrl.navigateRoot('/login'));
   }
 
