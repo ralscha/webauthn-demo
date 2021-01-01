@@ -242,7 +242,7 @@
 							</execution>
 						</executions>
 						<configuration>
-							<nodeVersion>v14.15.1</nodeVersion>
+							<nodeVersion>v15.5.0</nodeVersion>
 							<workingDirectory>${basedir}/../client</workingDirectory>
 							<NODE_ENV>production</NODE_ENV>
 						</configuration>
