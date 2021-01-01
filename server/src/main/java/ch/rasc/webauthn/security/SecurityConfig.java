@@ -22,10 +22,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     };
   }
 
-	@Override
-	public void configure(WebSecurity web) {
-		web.ignoring().antMatchers("/", "/assets/**/*", "/svg/**/*", "/*.br", "/*.gz", "/*.html", "/*.js", "/*.css");
-	}
+  @Override
+  public void configure(WebSecurity web) {
+    web.ignoring().antMatchers("/", "/assets/**/*", "/svg/**/*", "/*.br", "/*.gz",
+        "/*.html", "/*.js", "/*.css");
+  }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
