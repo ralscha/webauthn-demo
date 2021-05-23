@@ -21,56 +21,56 @@ public class CredentialsRecord extends UpdatableRecordImpl<CredentialsRecord>
   private static final long serialVersionUID = 1L;
 
   /**
-   * Setter for <code>CREDENTIALS.ID</code>.
+   * Setter for <code>webauthn.credentials.id</code>.
    */
   public void setId(byte[] value) {
     set(0, value);
   }
 
   /**
-   * Getter for <code>CREDENTIALS.ID</code>.
+   * Getter for <code>webauthn.credentials.id</code>.
    */
   public byte[] getId() {
     return (byte[]) get(0);
   }
 
   /**
-   * Setter for <code>CREDENTIALS.APP_USER_ID</code>.
+   * Setter for <code>webauthn.credentials.app_user_id</code>.
    */
   public void setAppUserId(Long value) {
     set(1, value);
   }
 
   /**
-   * Getter for <code>CREDENTIALS.APP_USER_ID</code>.
+   * Getter for <code>webauthn.credentials.app_user_id</code>.
    */
   public Long getAppUserId() {
     return (Long) get(1);
   }
 
   /**
-   * Setter for <code>CREDENTIALS.COUNT</code>.
+   * Setter for <code>webauthn.credentials.count</code>.
    */
   public void setCount(Long value) {
     set(2, value);
   }
 
   /**
-   * Getter for <code>CREDENTIALS.COUNT</code>.
+   * Getter for <code>webauthn.credentials.count</code>.
    */
   public Long getCount() {
     return (Long) get(2);
   }
 
   /**
-   * Setter for <code>CREDENTIALS.PUBLIC_KEY_COSE</code>.
+   * Setter for <code>webauthn.credentials.public_key_cose</code>.
    */
   public void setPublicKeyCose(byte[] value) {
     set(3, value);
   }
 
   /**
-   * Getter for <code>CREDENTIALS.PUBLIC_KEY_COSE</code>.
+   * Getter for <code>webauthn.credentials.public_key_cose</code>.
    */
   public byte[] getPublicKeyCose() {
     return (byte[]) get(3);

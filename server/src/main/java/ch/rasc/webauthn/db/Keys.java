@@ -15,8 +15,7 @@ import ch.rasc.webauthn.db.tables.records.AppUserRecord;
 import ch.rasc.webauthn.db.tables.records.CredentialsRecord;
 
 /**
- * A class modelling foreign key relationships and constraints of tables in the default
- * schema.
+ * A class modelling foreign key relationships and constraints of tables in webauthn.
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Keys {
@@ -25,14 +24,14 @@ public class Keys {
   // UNIQUE and PRIMARY KEY definitions
   // -------------------------------------------------------------------------
 
-  public static final UniqueKey<AppUserRecord> CONSTRAINT_7 = Internal.createUniqueKey(
-      AppUser.APP_USER, DSL.name("CONSTRAINT_7"),
-      new TableField[] { AppUser.APP_USER.ID }, true);
-  public static final UniqueKey<AppUserRecord> CONSTRAINT_76 = Internal.createUniqueKey(
-      AppUser.APP_USER, DSL.name("CONSTRAINT_76"),
-      new TableField[] { AppUser.APP_USER.USERNAME }, true);
-  public static final UniqueKey<CredentialsRecord> CONSTRAINT_9 = Internal
-      .createUniqueKey(Credentials.CREDENTIALS, DSL.name("CONSTRAINT_9"),
+  public static final UniqueKey<AppUserRecord> KEY_APP_USER_PRIMARY = Internal
+      .createUniqueKey(AppUser.APP_USER, DSL.name("KEY_app_user_PRIMARY"),
+          new TableField[] { AppUser.APP_USER.ID }, true);
+  public static final UniqueKey<AppUserRecord> KEY_APP_USER_USERNAME = Internal
+      .createUniqueKey(AppUser.APP_USER, DSL.name("KEY_app_user_username"),
+          new TableField[] { AppUser.APP_USER.USERNAME }, true);
+  public static final UniqueKey<CredentialsRecord> KEY_CREDENTIALS_PRIMARY = Internal
+      .createUniqueKey(Credentials.CREDENTIALS, DSL.name("KEY_credentials_PRIMARY"),
           new TableField[] { Credentials.CREDENTIALS.ID,
               Credentials.CREDENTIALS.APP_USER_ID },
           true);
@@ -41,8 +40,8 @@ public class Keys {
   // FOREIGN KEY definitions
   // -------------------------------------------------------------------------
 
-  public static final ForeignKey<CredentialsRecord, AppUserRecord> CONSTRAINT_91 = Internal
-      .createForeignKey(Credentials.CREDENTIALS, DSL.name("CONSTRAINT_91"),
-          new TableField[] { Credentials.CREDENTIALS.APP_USER_ID }, Keys.CONSTRAINT_7,
-          new TableField[] { AppUser.APP_USER.ID }, true);
+  public static final ForeignKey<CredentialsRecord, AppUserRecord> CREDENTIALS_IBFK_1 = Internal
+      .createForeignKey(Credentials.CREDENTIALS, DSL.name("credentials_ibfk_1"),
+          new TableField[] { Credentials.CREDENTIALS.APP_USER_ID },
+          Keys.KEY_APP_USER_PRIMARY, new TableField[] { AppUser.APP_USER.ID }, true);
 }

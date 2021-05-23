@@ -7,18 +7,18 @@ import ch.rasc.webauthn.db.tables.AppUser;
 import ch.rasc.webauthn.db.tables.Credentials;
 
 /**
- * Convenience access to all tables in the default schema.
+ * Convenience access to all tables in webauthn.
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Tables {
 
   /**
-   * The table <code>APP_USER</code>.
+   * The table <code>webauthn.app_user</code>.
    */
   public static final AppUser APP_USER = AppUser.APP_USER;
 
   /**
-   * The table <code>CREDENTIALS</code>.
+   * The table <code>webauthn.credentials</code>.
    */
   public static final Credentials CREDENTIALS = Credentials.CREDENTIALS;
 }

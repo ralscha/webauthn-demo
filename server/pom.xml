@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.5</version>
+		<version>2.5.0</version>
 		<relativePath />
 	</parent>
 	<groupId>ch.rasc</groupId>
@@ -16,7 +16,7 @@
 	<description>WebAuthn Demo</description>
 
 	<properties>
-		<java.version>11</java.version>
+		<java.version>16</java.version>
 	</properties>
 
 	<dependencies>
@@ -49,7 +49,7 @@
 		<dependency>
 			<groupId>com.yubico</groupId>
 			<artifactId>webauthn-server-core</artifactId>
-			<version>1.7.0</version>
+			<version>1.9.1-RC2</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.httpcomponents</groupId>
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>com.yubico</groupId>
 			<artifactId>yubico-util</artifactId>
-			<version>1.7.0</version>
+			<version>1.9.1-RC2</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
@@ -171,7 +171,7 @@
 									<jdbc>
 										<url>jdbc:mariadb://localhost:3306/webauthn?serverTimezone=UTC&amp;useMysqlMetadata=true</url>
 										<user>root</user>
-										<password></password>
+										<password>root</password>
 									</jdbc>
 									<generator>
 										<generate>
@@ -242,7 +242,7 @@
 							</execution>
 						</executions>
 						<configuration>
-							<nodeVersion>v15.5.0</nodeVersion>
+							<nodeVersion>v16.2.0</nodeVersion>
 							<workingDirectory>${basedir}/../client</workingDirectory>
 							<NODE_ENV>production</NODE_ENV>
 						</configuration>

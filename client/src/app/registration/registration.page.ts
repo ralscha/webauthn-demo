@@ -33,7 +33,7 @@ export class RegistrationPage {
   }
 
   selectSegment($event: Event): void {
-    // tslint:disable-next-line:no-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.view = ($event.target as any).value;
   }
 
@@ -110,7 +110,7 @@ export class RegistrationPage {
 interface RegistrationStartResponse {
   status: 'OK' | 'USERNAME_TAKEN' | 'TOKEN_INVALID';
   registrationId?: string;
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   publicKeyCredentialCreationOptions: any;
 }
 

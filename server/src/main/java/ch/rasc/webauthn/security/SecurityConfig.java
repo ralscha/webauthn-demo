@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
@@ -30,7 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
-    http.csrf(customizer -> customizer.disable()).logout(customizer -> {
+    http.csrf(CsrfConfigurer::disable).logout(customizer -> {
       customizer.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
       customizer.deleteCookies("JSESSIONID");
     }).authorizeRequests(customizer -> {

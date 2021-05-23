@@ -19,7 +19,7 @@ export class LoginPage {
               private readonly messagesService: MessagesService) {
   }
 
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async login({username}: any): Promise<void> {
     const loading = await this.messagesService.showLoading('Initiate login ...');
     await loading.present();
@@ -69,6 +69,6 @@ export class LoginPage {
 
 interface AssertionStartResponse {
   assertionId: string;
-  // tslint:disable-next-line:no-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   publicKeyCredentialRequestOptions: any;
 }
