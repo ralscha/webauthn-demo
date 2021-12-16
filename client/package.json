@@ -19,11 +19,7 @@
     "@angular/platform-browser-dynamic": "13.1.1",
     "@angular/router": "13.1.1",
     "@github/webauthn-json": "0.5.7",
-<<<<<<< HEAD
     "@ionic/angular": "6.0.1",
-=======
-    "@ionic/angular": "5.9.2",
->>>>>>> branch 'master' of git@github.com:ralscha/webauthn-demo.git
     "rxjs": "7.4.0",
     "tslib": "2.3.1",
     "zone.js": "0.11.4"
