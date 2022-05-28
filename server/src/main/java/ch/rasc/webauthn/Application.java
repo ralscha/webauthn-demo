@@ -1,7 +1,6 @@
 package ch.rasc.webauthn;
 
 import java.time.ZoneOffset;
-import java.util.Optional;
 import java.util.TimeZone;
 
 import org.slf4j.Logger;
@@ -33,7 +32,7 @@ public class Application {
 
     RelyingPartyIdentity rpIdentity = RelyingPartyIdentity.builder()
         .id(appProperties.getRelyingPartyId()).name(appProperties.getRelyingPartyName())
-        .icon(Optional.ofNullable(appProperties.getRelyingPartyIcon())).build();
+        .build();
 
     return RelyingParty.builder().identity(rpIdentity)
         .credentialRepository(credentialRepository)

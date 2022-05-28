@@ -1,6 +1,5 @@
 package ch.rasc.webauthn;
 
-import java.net.URL;
 import java.util.Set;
 
 import javax.validation.constraints.NotEmpty;
@@ -20,8 +19,6 @@ public class AppProperties {
   @NotEmpty
   private String relyingPartyName;
 
-  private URL relyingPartyIcon;
-
   @NotEmpty
   private Set<String> relyingPartyOrigins;
 
@@ -39,14 +36,6 @@ public class AppProperties {
 
   public void setRelyingPartyName(String relyingPartyName) {
     this.relyingPartyName = relyingPartyName;
-  }
-
-  public URL getRelyingPartyIcon() {
-    return this.relyingPartyIcon;
-  }
-
-  public void setRelyingPartyIcon(URL relyingPartyIcon) {
-    this.relyingPartyIcon = relyingPartyIcon;
   }
 
   public Set<String> getRelyingPartyOrigins() {
