@@ -130,12 +130,14 @@ public class JooqCredentialRepository implements CredentialRepository {
   }
 
   public boolean updateSignatureCount(AssertionResult result) {
-    System.out.println("JCR: updateSignatureCount: " + result.getUserHandle());
+    System.out
+        .println("JCR: updateSignatureCount: " + result.getCredential().getUserHandle());
 
-    long id = BytesUtil.bytesToLong(result.getUserHandle().getBytes());
+    long id = BytesUtil.bytesToLong(result.getCredential().getUserHandle().getBytes());
     int noOfUpdates = this.dsl.update(CREDENTIALS)
-        .set(CREDENTIALS.COUNT, result.getSignatureCount()).where(CREDENTIALS.ID
-            .eq(result.getCredentialId().getBytes()).and(CREDENTIALS.APP_USER_ID.eq(id)))
+        .set(CREDENTIALS.COUNT, result.getSignatureCount())
+        .where(CREDENTIALS.ID.eq(result.getCredential().getCredentialId().getBytes())
+            .and(CREDENTIALS.APP_USER_ID.eq(id)))
         .execute();
 
     return noOfUpdates == 1;

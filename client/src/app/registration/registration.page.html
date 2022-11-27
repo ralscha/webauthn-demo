@@ -42,7 +42,7 @@
       <ion-row>
         <ion-col>
           <ion-text *ngIf="registrationForm.submitted && username.invalid" color="danger">
-            <p *ngIf="username.errors?.required" class="ion-padding-start">
+            <p *ngIf="username.errors?.['required']" class="ion-padding-start">
               Username is required
             </p>
           </ion-text>
@@ -82,7 +82,7 @@
       <ion-row>
         <ion-col>
           <ion-text *ngIf="registrationForm.submitted && registrationAddCode.invalid" color="danger">
-            <p *ngIf="registrationAddCode.errors?.required" class="ion-padding-start">
+            <p *ngIf="registrationAddCode.errors?.['required']" class="ion-padding-start">
               Add Authenticator Code is required
             </p>
           </ion-text>
@@ -113,7 +113,8 @@
         <ion-col>
           <ion-item>
             <ion-label position="stacked">Recovery Code</ion-label>
-            <ion-input #recoveryCode="ngModel" [required]="true" [spellcheck]="false" autocapitalize="off" name="recoveryCode"
+            <ion-input #recoveryCode="ngModel" [required]="true" [spellcheck]="false" autocapitalize="off"
+                       name="recoveryCode"
                        ngModel type="text"></ion-input>
           </ion-item>
         </ion-col>
@@ -122,7 +123,7 @@
       <ion-row>
         <ion-col>
           <ion-text *ngIf="registrationForm.submitted && recoveryCode.invalid" color="danger">
-            <p *ngIf="recoveryCode.errors?.required" class="ion-padding-start">
+            <p *ngIf="recoveryCode.errors?.['required']" class="ion-padding-start">
               Recovery Code is required
             </p>
           </ion-text>

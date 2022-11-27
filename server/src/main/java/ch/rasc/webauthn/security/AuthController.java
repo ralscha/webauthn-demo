@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,6 +46,8 @@ import ch.rasc.webauthn.security.dto.RegistrationStartResponse;
 import ch.rasc.webauthn.security.dto.RegistrationStartResponse.Mode;
 import ch.rasc.webauthn.util.Base58;
 import ch.rasc.webauthn.util.BytesUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @Validated
@@ -58,14 +61,17 @@ public class AuthController {
 
   private final JooqCredentialRepository credentialRepository;
 
+  private final SecurityContextRepository securityContextRepository;
+
   private final RelyingParty relyingParty;
 
   private final SecureRandom random;
 
   public AuthController(DSLContext dsl, JooqCredentialRepository credentialRepository,
-      RelyingParty relyingParty) {
+      RelyingParty relyingParty, SecurityContextRepository securityContextRepository) {
     this.dsl = dsl;
     this.credentialRepository = credentialRepository;
+    this.securityContextRepository = securityContextRepository;
     this.relyingParty = relyingParty;
     this.registrationCache = Caffeine.newBuilder().maximumSize(1000)
         .expireAfterAccess(5, TimeUnit.MINUTES).build();
@@ -260,7 +266,8 @@ public class AuthController {
   }
 
   @PostMapping("/assertion/finish")
-  public boolean finish(@RequestBody AssertionFinishRequest finishRequest) {
+  public boolean finish(@RequestBody AssertionFinishRequest finishRequest,
+      HttpServletRequest request, HttpServletResponse response) {
 
     AssertionStartResponse startResponse = this.assertionCache
         .getIfPresent(finishRequest.getAssertionId());
@@ -278,7 +285,8 @@ public class AuthController {
               result.getUsername(), finishRequest.getCredential().getId());
         }
 
-        long userId = BytesUtil.bytesToLong(result.getUserHandle().getBytes());
+        long userId = BytesUtil
+            .bytesToLong(result.getCredential().getUserHandle().getBytes());
         var appUserRecord = this.dsl.selectFrom(APP_USER).where(APP_USER.ID.eq(userId))
             .fetchOne();
 
@@ -287,6 +295,8 @@ public class AuthController {
               new SimpleGrantedAuthority("USER"));
           AppUserAuthentication auth = new AppUserAuthentication(userDetail);
           SecurityContextHolder.getContext().setAuthentication(auth);
+          this.securityContextRepository.saveContext(SecurityContextHolder.getContext(),
+              request, response);
           return true;
         }
       }

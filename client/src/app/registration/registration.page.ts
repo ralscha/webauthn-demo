@@ -2,7 +2,8 @@ import {Component} from '@angular/core';
 import {NavController} from '@ionic/angular';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessagesService} from '../messages.service';
-import {create} from '@github/webauthn-json';
+import {create, parseCreationOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
+import {PublicKeyCredentialCreationOptionsJSON} from '@github/webauthn-json/src/webauthn-json/basic/json';
 
 @Component({
   selector: 'app-registration',
@@ -53,37 +54,32 @@ export class RegistrationPage {
     }
 
     this.httpClient.post<RegistrationStartResponse>('registration/start', body)
-      .subscribe(async (response) => {
-        await loading.dismiss();
-        if (response.status === 'OK') {
-          await this.createCredentials(response);
-        } else if (response.status === 'USERNAME_TAKEN') {
-          this.submitError = 'usernameTaken';
-        } else if (response.status === 'TOKEN_INVALID') {
-          if (registrationAddToken) {
-            this.submitError = 'addTokenInvalid';
-          } else {
-            this.submitError = 'recoveryTokenInvalid';
+      .subscribe({
+        next: async (response) => {
+          await loading.dismiss();
+          if (response.status === 'OK') {
+            await this.createCredentials(response);
+          } else if (response.status === 'USERNAME_TAKEN') {
+            this.submitError = 'usernameTaken';
+          } else if (response.status === 'TOKEN_INVALID') {
+            if (registrationAddToken) {
+              this.submitError = 'addTokenInvalid';
+            } else {
+              this.submitError = 'recoveryTokenInvalid';
+            }
           }
-        }
-      }, () => {
-        loading.dismiss();
-        this.messagesService.showErrorToast('Registration failed');
-      }, () => loading.dismiss());
+        },
+        error: () => {
+          loading.dismiss();
+          this.messagesService.showErrorToast('Registration failed');
+        },
+        complete: () => loading.dismiss(),
+      });
   }
 
   private async createCredentials(response: RegistrationStartResponse): Promise<void> {
-    const credential = await create({
-      publicKey: response.publicKeyCredentialCreationOptions
-    });
-
-    try {
-      // @ts-ignore
-      credential.clientExtensionResults = credential.getClientExtensionResults();
-    } catch (e) {
-      // @ts-ignore
-      credential.clientExtensionResults = {};
-    }
+    const options = parseCreationOptionsFromJSON({publicKey: response.publicKeyCredentialCreationOptions})
+    const credential = await create(options);
 
     const credentialResponse = {
       registrationId: response.registrationId,
@@ -94,23 +90,26 @@ export class RegistrationPage {
     await loading.present();
 
     this.httpClient.post('registration/finish', credentialResponse, {responseType: 'text'})
-      .subscribe(recoveryToken => {
-        if (recoveryToken) {
-          this.recoveryToken = recoveryToken;
-        } else {
+      .subscribe({
+        next: recoveryToken => {
+          if (recoveryToken) {
+            this.recoveryToken = recoveryToken;
+          } else {
+            this.messagesService.showErrorToast('Registration failed');
+          }
+        },
+        error: () => {
+          loading.dismiss();
           this.messagesService.showErrorToast('Registration failed');
-        }
-      }, () => {
-        loading.dismiss();
-        this.messagesService.showErrorToast('Registration failed');
-      }, () => loading.dismiss());
+        },
+        complete: () => loading.dismiss()
+      });
   }
 }
 
 interface RegistrationStartResponse {
   status: 'OK' | 'USERNAME_TAKEN' | 'TOKEN_INVALID';
   registrationId?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  publicKeyCredentialCreationOptions: any;
+  publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptionsJSON;
 }
 

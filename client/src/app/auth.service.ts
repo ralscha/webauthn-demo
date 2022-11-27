@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {catchError, mapTo, tap} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,7 @@ export class AuthService {
       withCredentials: true
     }).pipe(
       tap(() => this.loggedIn = true),
-      mapTo(true),
+      map(() => true),
       catchError(() => {
         this.loggedIn = false;
         return of(false);

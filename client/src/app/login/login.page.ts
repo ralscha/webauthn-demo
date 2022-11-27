@@ -3,7 +3,8 @@ import {AuthService} from '../auth.service';
 import {LoadingController, NavController} from '@ionic/angular';
 import {MessagesService} from '../messages.service';
 import {HttpClient} from '@angular/common/http';
-import {get} from '@github/webauthn-json';
+import {get, parseRequestOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
+import {PublicKeyCredentialRequestOptionsJSON} from '@github/webauthn-json/dist/types/basic/json';
 
 @Component({
   selector: 'app-login',
@@ -25,28 +26,23 @@ export class LoginPage {
     await loading.present();
 
     this.httpClient.post<AssertionStartResponse>('assertion/start', username)
-      .subscribe(response => this.handleAssertionStart(response), () => {
-        loading.dismiss();
-        this.messagesService.showErrorToast('Login failed');
-      }, () => loading.dismiss());
+      .subscribe({
+        next: response => this.handleAssertionStart(response),
+        error: () => {
+          loading.dismiss();
+          this.messagesService.showErrorToast('Login failed');
+        },
+        complete: () => loading.dismiss()
+      });
   }
 
   private async handleAssertionStart(response: AssertionStartResponse): Promise<void> {
-    const credential = await get({
-      publicKey: response.publicKeyCredentialRequestOptions
-    });
-
-    try {
-      // @ts-ignore
-      credential.clientExtensionResults = credential.getClientExtensionResults();
-    } catch (e) {
-      // @ts-ignore
-      credential.clientExtensionResults = {};
-    }
+    const options = parseRequestOptionsFromJSON({publicKey: response.publicKeyCredentialRequestOptions})
+    const credential = await get(options);
 
     const assertionResponse = {
       assertionId: response.assertionId,
-      credential
+      credential: credential
     };
 
     const loading = await this.messagesService.showLoading('Validating ...');
@@ -54,21 +50,24 @@ export class LoginPage {
 
     this.httpClient.post<boolean>('assertion/finish', assertionResponse, {
       withCredentials: true
-    }).subscribe(ok => {
-      if (ok) {
-        this.navCtrl.navigateRoot('/home', {replaceUrl: true});
-      } else {
+    }).subscribe({
+      next: ok => {
+        if (ok) {
+          this.navCtrl.navigateRoot('/home', {replaceUrl: true});
+        } else {
+          this.messagesService.showErrorToast('Login failed');
+        }
+      },
+      error: () => {
+        loading.dismiss();
         this.messagesService.showErrorToast('Login failed');
-      }
-    }, () => {
-      loading.dismiss();
-      this.messagesService.showErrorToast('Login failed');
-    }, () => loading.dismiss());
+      },
+      complete: () => loading.dismiss()
+    });
   }
 }
 
 interface AssertionStartResponse {
   assertionId: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  publicKeyCredentialRequestOptions: any;
+  publicKeyCredentialRequestOptions: PublicKeyCredentialRequestOptionsJSON;
 }

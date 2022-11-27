@@ -2,11 +2,11 @@ package ch.rasc.webauthn;
 
 import java.util.Set;
 
-import javax.validation.constraints.NotEmpty;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.constraints.NotEmpty;
 
 @ConfigurationProperties(prefix = "app")
 @Component
