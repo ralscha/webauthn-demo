@@ -32,9 +32,13 @@ import com.yubico.webauthn.RegistrationResult;
 import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.StartAssertionOptions;
 import com.yubico.webauthn.StartRegistrationOptions;
+import com.yubico.webauthn.data.AuthenticatorAttachment;
+import com.yubico.webauthn.data.AuthenticatorSelectionCriteria;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialCreationOptions;
+import com.yubico.webauthn.data.ResidentKeyRequirement;
 import com.yubico.webauthn.data.UserIdentity;
+import com.yubico.webauthn.data.UserVerificationRequirement;
 import com.yubico.webauthn.exception.AssertionFailedException;
 import com.yubico.webauthn.exception.RegistrationFailedException;
 
@@ -181,6 +185,10 @@ public class AuthController {
           .startRegistration(StartRegistrationOptions.builder()
               .user(UserIdentity.builder().name(name).displayName(name)
                   .id(new ByteArray(BytesUtil.longToBytes(userId))).build())
+              .authenticatorSelection(AuthenticatorSelectionCriteria.builder()
+                  .authenticatorAttachment(AuthenticatorAttachment.CROSS_PLATFORM)
+                  .residentKey(ResidentKeyRequirement.PREFERRED)
+                  .userVerification(UserVerificationRequirement.PREFERRED).build())
               .build());
 
       byte[] registrationId = new byte[16];
