@@ -235,12 +235,12 @@
 								</goals>
 								<phase>prepare-package</phase>
 								<configuration>
-									<arguments>run build-prod</arguments>
+									<arguments>run build</arguments>
 								</configuration>
 							</execution>
 						</executions>
 						<configuration>
-							<nodeVersion>v18.12.1</nodeVersion>
+							<nodeVersion>v18.14.2</nodeVersion>
 							<workingDirectory>${basedir}/../client</workingDirectory>
 							<environmentVariables>
 								<NODE_ENV>production</NODE_ENV>

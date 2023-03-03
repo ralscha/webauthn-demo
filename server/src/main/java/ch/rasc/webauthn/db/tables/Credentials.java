@@ -144,11 +144,10 @@ public class Credentials extends TableImpl<CredentialsRecord> {
    * Get the implicit join path to the <code>webauthn.app_user</code> table.
    */
   public AppUser appUser() {
-    if (this._appUser == null) {
-      this._appUser = new AppUser(this, Keys.CREDENTIALS_IBFK_1);
-    }
+    if (_appUser == null)
+      _appUser = new AppUser(this, Keys.CREDENTIALS_IBFK_1);
 
-    return this._appUser;
+    return _appUser;
   }
 
   @Override
