@@ -10,10 +10,10 @@ CREATE TABLE app_user (
 );
 
 CREATE TABLE credentials (
-    id                    VARBINARY(128) NOT NULL,
-    app_user_id           BIGINT     NOT NULL,
-    count                 BIGINT     NOT NULL,
-    public_key_credential VARCHAR(255) NOT NULL,
+    id              VARBINARY(128) NOT NULL,
+    app_user_id     BIGINT     NOT NULL,
+    count           BIGINT     NOT NULL,
+    public_key_cose VARBINARY(500) NOT NULL,
     PRIMARY KEY(id, app_user_id),
     FOREIGN KEY (app_user_id) REFERENCES app_user(id) ON DELETE CASCADE
 );
