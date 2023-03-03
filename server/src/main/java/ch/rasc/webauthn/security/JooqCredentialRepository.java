@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.yubico.webauthn.AssertionResult;
 import com.yubico.webauthn.CredentialRepository;
 import com.yubico.webauthn.RegisteredCredential;
+import com.yubico.webauthn.data.AuthenticatorTransport;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
 
@@ -28,25 +29,35 @@ public class JooqCredentialRepository implements CredentialRepository {
   }
 
   public void addCredential(long userId, byte[] credentialId, byte[] publicKeyCose,
-      long counter) {
+      String transports, long counter) {
     this.dsl.insertInto(CREDENTIALS)
         .columns(CREDENTIALS.ID, CREDENTIALS.APP_USER_ID, CREDENTIALS.PUBLIC_KEY_COSE,
-            CREDENTIALS.COUNT)
-        .values(credentialId, userId, publicKeyCose, counter).execute();
+            CREDENTIALS.TRANSPORTS, CREDENTIALS.COUNT)
+        .values(credentialId, userId, publicKeyCose, transports, counter).execute();
   }
 
   @Override
   public Set<PublicKeyCredentialDescriptor> getCredentialIdsForUsername(String username) {
     System.out.println("JCR: getCredentialIdsForUsername: " + username);
 
-    var records = this.dsl.select(CREDENTIALS.ID).from(CREDENTIALS).innerJoin(APP_USER)
-        .onKey().where(APP_USER.USERNAME.eq(username)).fetch();
+    var records = this.dsl.select(CREDENTIALS.ID, CREDENTIALS.TRANSPORTS)
+        .from(CREDENTIALS).innerJoin(APP_USER).onKey()
+        .where(APP_USER.USERNAME.eq(username)).fetch();
 
     Set<PublicKeyCredentialDescriptor> result = new HashSet<>();
 
     for (var record : records) {
+      String transportsString = record.get(CREDENTIALS.TRANSPORTS);
+      Set<AuthenticatorTransport> transports = null;
+      if (transportsString != null && !transportsString.isEmpty()) {
+        transports = new HashSet<>();
+        String[] splitted = transportsString.split(",");
+        for (String element : splitted) {
+          transports.add(AuthenticatorTransport.of(element));
+        }
+      }
       PublicKeyCredentialDescriptor descriptor = PublicKeyCredentialDescriptor.builder()
-          .id(new ByteArray(record.get(CREDENTIALS.ID))).build();
+          .id(new ByteArray(record.get(CREDENTIALS.ID))).transports(transports).build();
       result.add(descriptor);
     }
 

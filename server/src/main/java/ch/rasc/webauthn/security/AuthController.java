@@ -6,6 +6,8 @@ import static ch.rasc.webauthn.db.tables.Credentials.CREDENTIALS;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Optional;
+import java.util.SortedSet;
 import java.util.concurrent.TimeUnit;
 
 import org.jooq.DSLContext;
@@ -34,6 +36,7 @@ import com.yubico.webauthn.StartAssertionOptions;
 import com.yubico.webauthn.StartRegistrationOptions;
 import com.yubico.webauthn.data.AuthenticatorAttachment;
 import com.yubico.webauthn.data.AuthenticatorSelectionCriteria;
+import com.yubico.webauthn.data.AuthenticatorTransport;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialCreationOptions;
 import com.yubico.webauthn.data.ResidentKeyRequirement;
@@ -222,9 +225,21 @@ public class AuthController {
             .getUser();
 
         long userId = BytesUtil.bytesToLong(userIdentity.getId().getBytes());
+        String transports = null;
+        Optional<SortedSet<AuthenticatorTransport>> transportOptional = registrationResult
+            .getKeyId().getTransports();
+        if (transportOptional.isPresent()) {
+          transports = "";
+          for (AuthenticatorTransport at : transportOptional.get()) {
+            if (transports.length() > 0) {
+              transports += ",";
+            }
+            transports += at.getId();
+          }
+        }
         this.credentialRepository.addCredential(userId,
             registrationResult.getKeyId().getId().getBytes(),
-            registrationResult.getPublicKeyCose().getBytes(),
+            registrationResult.getPublicKeyCose().getBytes(), transports,
             finishRequest.getCredential().getResponse().getParsedAuthenticatorData()
                 .getSignatureCounter());
 
@@ -264,7 +279,8 @@ public class AuthController {
 
     String assertionIdBase64 = Base64.getEncoder().encodeToString(assertionId);
     AssertionRequest assertionRequest = this.relyingParty
-        .startAssertion(StartAssertionOptions.builder().username(username).build());
+        .startAssertion(StartAssertionOptions.builder().username(username)
+            .userVerification(UserVerificationRequirement.PREFERRED).build());
 
     AssertionStartResponse response = new AssertionStartResponse(assertionIdBase64,
         assertionRequest);

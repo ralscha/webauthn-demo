@@ -36,6 +36,6 @@ public class DefaultCatalog extends CatalogImpl {
 
   @Override
   public final List<Schema> getSchemas() {
-    return Arrays.<Schema>asList(Webauthn.WEBAUTHN);
+    return Arrays.asList(Webauthn.WEBAUTHN);
   }
 }

@@ -6,14 +6,18 @@ package ch.rasc.webauthn.db.tables;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
+import org.jooq.Function6;
 import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
+import org.jooq.Records;
 import org.jooq.Row6;
 import org.jooq.Schema;
+import org.jooq.SelectField;
 import org.jooq.Table;
 import org.jooq.TableField;
 import org.jooq.TableOptions;
@@ -126,7 +130,7 @@ public class AppUser extends TableImpl<AppUserRecord> {
 
   @Override
   public Schema getSchema() {
-    return Webauthn.WEBAUTHN;
+    return aliased() ? null : Webauthn.WEBAUTHN;
   }
 
   @Override
@@ -140,9 +144,8 @@ public class AppUser extends TableImpl<AppUserRecord> {
   }
 
   @Override
-  public List<UniqueKey<AppUserRecord>> getKeys() {
-    return Arrays.<UniqueKey<AppUserRecord>>asList(Keys.KEY_APP_USER_PRIMARY,
-        Keys.KEY_APP_USER_USERNAME);
+  public List<UniqueKey<AppUserRecord>> getUniqueKeys() {
+    return Arrays.asList(Keys.KEY_APP_USER_USERNAME);
   }
 
   @Override
@@ -153,6 +156,11 @@ public class AppUser extends TableImpl<AppUserRecord> {
   @Override
   public AppUser as(Name alias) {
     return new AppUser(alias, this);
+  }
+
+  @Override
+  public AppUser as(Table<?> alias) {
+    return new AppUser(alias.getQualifiedName(), this);
   }
 
   /**
@@ -171,6 +179,14 @@ public class AppUser extends TableImpl<AppUserRecord> {
     return new AppUser(name, null);
   }
 
+  /**
+   * Rename this table
+   */
+  @Override
+  public AppUser rename(Table<?> name) {
+    return new AppUser(name.getQualifiedName(), null);
+  }
+
   // -------------------------------------------------------------------------
   // Row6 type methods
   // -------------------------------------------------------------------------
@@ -178,5 +194,21 @@ public class AppUser extends TableImpl<AppUserRecord> {
   @Override
   public Row6<Long, String, byte[], LocalDateTime, LocalDateTime, byte[]> fieldsRow() {
     return (Row6) super.fieldsRow();
+  }
+
+  /**
+   * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+   */
+  public <U> SelectField<U> mapping(
+      Function6<? super Long, ? super String, ? super byte[], ? super LocalDateTime, ? super LocalDateTime, ? super byte[], ? extends U> from) {
+    return convertFrom(Records.mapping(from));
+  }
+
+  /**
+   * Convenience mapping calling {@link SelectField#convertFrom(Class, Function)}.
+   */
+  public <U> SelectField<U> mapping(Class<U> toType,
+      Function6<? super Long, ? super String, ? super byte[], ? super LocalDateTime, ? super LocalDateTime, ? super byte[], ? extends U> from) {
+    return convertFrom(toType, Records.mapping(from));
   }
 }

@@ -5,14 +5,18 @@ package ch.rasc.webauthn.db.tables;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
+import org.jooq.Function5;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row4;
+import org.jooq.Records;
+import org.jooq.Row5;
 import org.jooq.Schema;
+import org.jooq.SelectField;
 import org.jooq.Table;
 import org.jooq.TableField;
 import org.jooq.TableOptions;
@@ -71,6 +75,14 @@ public class Credentials extends TableImpl<CredentialsRecord> {
   public final TableField<CredentialsRecord, byte[]> PUBLIC_KEY_COSE = createField(
       DSL.name("public_key_cose"), SQLDataType.VARBINARY(500).nullable(false), this, "");
 
+  /**
+   * The column <code>webauthn.credentials.transports</code>.
+   */
+  public final TableField<CredentialsRecord, String> TRANSPORTS = createField(
+      DSL.name("transports"),
+      SQLDataType.VARCHAR(255).defaultValue(DSL.field("NULL", SQLDataType.VARCHAR)), this,
+      "");
+
   private Credentials(Name alias, Table<CredentialsRecord> aliased) {
     this(alias, aliased, null);
   }
@@ -108,12 +120,12 @@ public class Credentials extends TableImpl<CredentialsRecord> {
 
   @Override
   public Schema getSchema() {
-    return Webauthn.WEBAUTHN;
+    return aliased() ? null : Webauthn.WEBAUTHN;
   }
 
   @Override
   public List<Index> getIndexes() {
-    return Arrays.<Index>asList(Indexes.CREDENTIALS_APP_USER_ID);
+    return Arrays.asList(Indexes.CREDENTIALS_APP_USER_ID);
   }
 
   @Override
@@ -122,17 +134,15 @@ public class Credentials extends TableImpl<CredentialsRecord> {
   }
 
   @Override
-  public List<UniqueKey<CredentialsRecord>> getKeys() {
-    return Arrays.<UniqueKey<CredentialsRecord>>asList(Keys.KEY_CREDENTIALS_PRIMARY);
-  }
-
-  @Override
   public List<ForeignKey<CredentialsRecord, ?>> getReferences() {
-    return Arrays.<ForeignKey<CredentialsRecord, ?>>asList(Keys.CREDENTIALS_IBFK_1);
+    return Arrays.asList(Keys.CREDENTIALS_IBFK_1);
   }
 
   private transient AppUser _appUser;
 
+  /**
+   * Get the implicit join path to the <code>webauthn.app_user</code> table.
+   */
   public AppUser appUser() {
     if (this._appUser == null) {
       this._appUser = new AppUser(this, Keys.CREDENTIALS_IBFK_1);
@@ -151,6 +161,11 @@ public class Credentials extends TableImpl<CredentialsRecord> {
     return new Credentials(alias, this);
   }
 
+  @Override
+  public Credentials as(Table<?> alias) {
+    return new Credentials(alias.getQualifiedName(), this);
+  }
+
   /**
    * Rename this table
    */
@@ -167,12 +182,36 @@ public class Credentials extends TableImpl<CredentialsRecord> {
     return new Credentials(name, null);
   }
 
+  /**
+   * Rename this table
+   */
+  @Override
+  public Credentials rename(Table<?> name) {
+    return new Credentials(name.getQualifiedName(), null);
+  }
+
   // -------------------------------------------------------------------------
-  // Row4 type methods
+  // Row5 type methods
   // -------------------------------------------------------------------------
 
   @Override
-  public Row4<byte[], Long, Long, byte[]> fieldsRow() {
-    return (Row4) super.fieldsRow();
+  public Row5<byte[], Long, Long, byte[], String> fieldsRow() {
+    return (Row5) super.fieldsRow();
+  }
+
+  /**
+   * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+   */
+  public <U> SelectField<U> mapping(
+      Function5<? super byte[], ? super Long, ? super Long, ? super byte[], ? super String, ? extends U> from) {
+    return convertFrom(Records.mapping(from));
+  }
+
+  /**
+   * Convenience mapping calling {@link SelectField#convertFrom(Class, Function)}.
+   */
+  public <U> SelectField<U> mapping(Class<U> toType,
+      Function5<? super byte[], ? super Long, ? super Long, ? super byte[], ? super String, ? extends U> from) {
+    return convertFrom(toType, Records.mapping(from));
   }
 }

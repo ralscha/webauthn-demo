@@ -50,6 +50,6 @@ public class Webauthn extends SchemaImpl {
 
   @Override
   public final List<Table<?>> getTables() {
-    return Arrays.<Table<?>>asList(AppUser.APP_USER, Credentials.CREDENTIALS);
+    return Arrays.asList(AppUser.APP_USER, Credentials.CREDENTIALS);
   }
 }

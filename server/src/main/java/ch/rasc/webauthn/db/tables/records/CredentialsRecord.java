@@ -5,8 +5,8 @@ package ch.rasc.webauthn.db.tables.records;
 
 import org.jooq.Field;
 import org.jooq.Record2;
-import org.jooq.Record4;
-import org.jooq.Row4;
+import org.jooq.Record5;
+import org.jooq.Row5;
 import org.jooq.impl.UpdatableRecordImpl;
 
 import ch.rasc.webauthn.db.tables.Credentials;
@@ -16,7 +16,7 @@ import ch.rasc.webauthn.db.tables.Credentials;
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class CredentialsRecord extends UpdatableRecordImpl<CredentialsRecord>
-    implements Record4<byte[], Long, Long, byte[]> {
+    implements Record5<byte[], Long, Long, byte[], String> {
 
   private static final long serialVersionUID = 1L;
 
@@ -76,6 +76,20 @@ public class CredentialsRecord extends UpdatableRecordImpl<CredentialsRecord>
     return (byte[]) get(3);
   }
 
+  /**
+   * Setter for <code>webauthn.credentials.transports</code>.
+   */
+  public void setTransports(String value) {
+    set(4, value);
+  }
+
+  /**
+   * Getter for <code>webauthn.credentials.transports</code>.
+   */
+  public String getTransports() {
+    return (String) get(4);
+  }
+
   // -------------------------------------------------------------------------
   // Primary key information
   // -------------------------------------------------------------------------
@@ -86,17 +100,17 @@ public class CredentialsRecord extends UpdatableRecordImpl<CredentialsRecord>
   }
 
   // -------------------------------------------------------------------------
-  // Record4 type implementation
+  // Record5 type implementation
   // -------------------------------------------------------------------------
 
   @Override
-  public Row4<byte[], Long, Long, byte[]> fieldsRow() {
-    return (Row4) super.fieldsRow();
+  public Row5<byte[], Long, Long, byte[], String> fieldsRow() {
+    return (Row5) super.fieldsRow();
   }
 
   @Override
-  public Row4<byte[], Long, Long, byte[]> valuesRow() {
-    return (Row4) super.valuesRow();
+  public Row5<byte[], Long, Long, byte[], String> valuesRow() {
+    return (Row5) super.valuesRow();
   }
 
   @Override
@@ -120,6 +134,11 @@ public class CredentialsRecord extends UpdatableRecordImpl<CredentialsRecord>
   }
 
   @Override
+  public Field<String> field5() {
+    return Credentials.CREDENTIALS.TRANSPORTS;
+  }
+
+  @Override
   public byte[] component1() {
     return getId();
   }
@@ -140,6 +159,11 @@ public class CredentialsRecord extends UpdatableRecordImpl<CredentialsRecord>
   }
 
   @Override
+  public String component5() {
+    return getTransports();
+  }
+
+  @Override
   public byte[] value1() {
     return getId();
   }
@@ -157,6 +181,11 @@ public class CredentialsRecord extends UpdatableRecordImpl<CredentialsRecord>
   @Override
   public byte[] value4() {
     return getPublicKeyCose();
+  }
+
+  @Override
+  public String value5() {
+    return getTransports();
   }
 
   @Override
@@ -184,12 +213,19 @@ public class CredentialsRecord extends UpdatableRecordImpl<CredentialsRecord>
   }
 
   @Override
-  public CredentialsRecord values(byte[] value1, Long value2, Long value3,
-      byte[] value4) {
+  public CredentialsRecord value5(String value) {
+    setTransports(value);
+    return this;
+  }
+
+  @Override
+  public CredentialsRecord values(byte[] value1, Long value2, Long value3, byte[] value4,
+      String value5) {
     value1(value1);
     value2(value2);
     value3(value3);
     value4(value4);
+    value5(value5);
     return this;
   }
 
@@ -207,12 +243,14 @@ public class CredentialsRecord extends UpdatableRecordImpl<CredentialsRecord>
   /**
    * Create a detached, initialised CredentialsRecord
    */
-  public CredentialsRecord(byte[] id, Long appUserId, Long count, byte[] publicKeyCose) {
+  public CredentialsRecord(byte[] id, Long appUserId, Long count, byte[] publicKeyCose,
+      String transports) {
     super(Credentials.CREDENTIALS);
 
     setId(id);
     setAppUserId(appUserId);
     setCount(count);
     setPublicKeyCose(publicKeyCose);
+    setTransports(transports);
   }
 }

@@ -14,6 +14,7 @@ CREATE TABLE credentials (
     app_user_id     BIGINT     NOT NULL,
     count           BIGINT     NOT NULL,
     public_key_cose VARBINARY(500) NOT NULL,
+    transports      VARCHAR(255),
     PRIMARY KEY(id, app_user_id),
     FOREIGN KEY (app_user_id) REFERENCES app_user(id) ON DELETE CASCADE
 );
