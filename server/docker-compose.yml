@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  wa_db:
+    image: mariadb
+    environment:
+      MARIADB_DATABASE: webauthn
+      MARIADB_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"

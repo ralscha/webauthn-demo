@@ -9,7 +9,7 @@
 
 <ion-content *ngIf="!recoveryToken" class="ion-padding">
 
-  <ion-segment (ionChange)="selectSegment($event)">
+  <ion-segment (ionChange)="selectSegment($event)" [ngModel]="view">
     <ion-segment-button value="new">
       <ion-label>New</ion-label>
     </ion-segment-button>
@@ -30,27 +30,13 @@
 
       <ion-row>
         <ion-col>
-          <ion-item>
-            <ion-label position="stacked">Username</ion-label>
-            <ion-input #username="ngModel" [required]="true" [spellcheck]="false" autocapitalize="off"
-                       autocomplete="username webauthn" name="username"
+          <ion-item lines="none">
+            <ion-input #username="ngModel" [errorText]="submitError ? 'Username already registered' : 'Username is required'" [required]="true" [spellcheck]="false"
+                       autocapitalize="off" autocomplete="username webauthn"
+                       label="Username" labelPlacement="stacked"
+                       name="username"
                        ngModel type="text"></ion-input>
           </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col>
-          <ion-text *ngIf="registrationForm.submitted && username.invalid" color="danger">
-            <p *ngIf="username.errors?.['required']" class="ion-padding-start">
-              Username is required
-            </p>
-          </ion-text>
-          <ion-text *ngIf="submitError" color="danger">
-            <p *ngIf="submitError === 'usernameTaken'" class="ion-padding-start">
-              Username already registered
-            </p>
-          </ion-text>
         </ion-col>
       </ion-row>
 
@@ -71,26 +57,12 @@
 
       <ion-row>
         <ion-col>
-          <ion-item>
-            <ion-label position="stacked">Add Authenticator Code</ion-label>
-            <ion-input #registrationAddCode="ngModel" [required]="true" [spellcheck]="false" autocapitalize="off"
+          <ion-item lines="none">
+            <ion-input #registrationAddCode="ngModel" [errorText]="submitError ? 'Add Authenticator Code invalid' : 'Add Authenticator Code is required'" [required]="true" [spellcheck]="false"
+                       autocapitalize="off" label="Add Authenticator Code"
+                       labelPlacement="stacked"
                        name="registrationAddCode" ngModel type="text"></ion-input>
           </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col>
-          <ion-text *ngIf="registrationForm.submitted && registrationAddCode.invalid" color="danger">
-            <p *ngIf="registrationAddCode.errors?.['required']" class="ion-padding-start">
-              Add Authenticator Code is required
-            </p>
-          </ion-text>
-          <ion-text *ngIf="submitError" color="danger">
-            <p *ngIf="submitError === 'addTokenInvalid'" class="ion-padding-start">
-              Add Authenticator Code invalid
-            </p>
-          </ion-text>
         </ion-col>
       </ion-row>
 
@@ -111,27 +83,13 @@
 
       <ion-row>
         <ion-col>
-          <ion-item>
-            <ion-label position="stacked">Recovery Code</ion-label>
-            <ion-input #recoveryCode="ngModel" [required]="true" [spellcheck]="false" autocapitalize="off"
+          <ion-item lines="none">
+            <ion-input #recoveryCode="ngModel" [errorText]="submitError ? 'Recovery Code invalid' : 'Recovery Code is required'" [required]="true" [spellcheck]="false"
+                       autocapitalize="off" label="Recovery Code"
+                       labelPlacement="stacked"
                        name="recoveryCode"
                        ngModel type="text"></ion-input>
           </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col>
-          <ion-text *ngIf="registrationForm.submitted && recoveryCode.invalid" color="danger">
-            <p *ngIf="recoveryCode.errors?.['required']" class="ion-padding-start">
-              Recovery Code is required
-            </p>
-          </ion-text>
-          <ion-text *ngIf="submitError" color="danger">
-            <p *ngIf="submitError === 'recoveryTokenInvalid'" class="ion-padding-start">
-              Recovery Code invalid
-            </p>
-          </ion-text>
         </ion-col>
       </ion-row>
 
