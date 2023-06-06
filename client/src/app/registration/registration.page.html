@@ -22,7 +22,8 @@
   </ion-segment>
 
 
-  <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && registerNew(username.value)"
+  <form #registrationForm="ngForm"
+        (ngSubmit)="registrationForm.valid && registerNew(username.value, crossPlatform.value)"
         *ngIf="view === 'new'"
         [ngFormOptions]="{updateOn: 'submit'}"
         class="ion-margin-top" novalidate>
@@ -43,6 +44,17 @@
       </ion-row>
 
       <ion-row>
+        <ion-col>
+          <ion-item lines="none">
+            <ion-checkbox #crossPlatform="ngModel" [checked]="false" [disabled]="!platformAuthenticatorAvailable"
+                          labelPlacement="stacked" name="crossPlatform"
+                          ngModel=false>Cross Platform
+            </ion-checkbox>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
         <ion-col class="ion-margin-top">
           <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
         </ion-col>
@@ -51,7 +63,8 @@
     </ion-grid>
   </form>
 
-  <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && registerAdd(registrationAddCode.value)"
+  <form #registrationForm="ngForm"
+        (ngSubmit)="registrationForm.valid && registerAdd(registrationAddCode.value, crossPlatform.value)"
         *ngIf="view === 'add'"
         [ngFormOptions]="{updateOn: 'submit'}"
         class="ion-margin-top" novalidate>
@@ -71,6 +84,17 @@
       </ion-row>
 
       <ion-row>
+        <ion-col>
+          <ion-item lines="none">
+            <ion-checkbox #crossPlatform="ngModel" [checked]="false" [disabled]="!platformAuthenticatorAvailable"
+                          labelPlacement="stacked" name="crossPlatform"
+                          ngModel=false>Cross Platform
+            </ion-checkbox>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
         <ion-col class="ion-margin-top">
           <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
         </ion-col>
@@ -79,7 +103,8 @@
     </ion-grid>
   </form>
 
-  <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && recover(recoveryCode.value)"
+  <form #registrationForm="ngForm"
+        (ngSubmit)="registrationForm.valid && recover(recoveryCode.value, crossPlatform.value)"
         *ngIf="view === 'recover'"
         [ngFormOptions]="{updateOn: 'submit'}"
         class="ion-margin-top" novalidate>
@@ -95,6 +120,17 @@
                        labelPlacement="stacked"
                        name="recoveryCode"
                        ngModel type="text"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+
+      <ion-row>
+        <ion-col>
+          <ion-item lines="none">
+            <ion-checkbox #crossPlatform="ngModel" [checked]="false" [disabled]="!platformAuthenticatorAvailable"
+                          labelPlacement="stacked" name="crossPlatform"
+                          ngModel=false>Cross Platform
+            </ion-checkbox>
           </ion-item>
         </ion-col>
       </ion-row>

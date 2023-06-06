@@ -1,6 +1,6 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {AuthService} from '../auth.service';
-import {LoadingController, NavController} from '@ionic/angular';
+import {LoadingController, NavController, ViewDidEnter} from '@ionic/angular';
 import {MessagesService} from '../messages.service';
 import {HttpClient} from '@angular/common/http';
 import {get, parseRequestOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
@@ -11,8 +11,9 @@ import {PublicKeyCredentialRequestOptionsJSON} from '@github/webauthn-json/dist/
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements ViewDidEnter {
   loginButtonEnabled = true;
+  private abortController: AbortController | null = null;
 
   constructor(private readonly authService: AuthService,
               private readonly loadingCtrl: LoadingController,
@@ -21,23 +22,22 @@ export class LoginPage implements OnInit {
               private readonly messagesService: MessagesService) {
   }
 
-  async ngOnInit(): Promise<void> {
-    // @ts-ignore
+  async ionViewDidEnter(): Promise<void> {
     if (window.PublicKeyCredential && PublicKeyCredential.isConditionalMediationAvailable) {
-      const isCMA = await PublicKeyCredential.isConditionalMediationAvailable();
-      if (isCMA) {
-        this.loginButtonEnabled = false;
-        await this.assertionStart();
-      }
+      PublicKeyCredential.isConditionalMediationAvailable()
+        .then(async (available) => {
+          this.loginButtonEnabled = !available;
+          await this.assertionStart();
+        });
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async assertionStart({username}: any = null): Promise<void> {
+  async assertionStart(formValues: { username: string } | null = null): Promise<void> {
     const loading = await this.messagesService.showLoading('Initiate login ...');
     await loading.present();
 
-    this.httpClient.post<AssertionStartResponse>('assertion/start', username)
+    this.httpClient.post<AssertionStartResponse>('assertion/start', formValues?.username)
       .subscribe({
         next: response => this.handleAssertionStart(response),
         error: () => {
@@ -48,9 +48,23 @@ export class LoginPage implements OnInit {
       });
   }
 
+  forwardToRegistration() {
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+    this.navCtrl.navigateForward('/registration');
+  }
+
   private async handleAssertionStart(response: AssertionStartResponse): Promise<void> {
     const options = parseRequestOptionsFromJSON({publicKey: response.publicKeyCredentialRequestOptions})
-    options.mediation = 'optional';
+
+    if (!this.loginButtonEnabled) {
+      // @ts-ignore
+      options.mediation = 'conditional';
+    }
+
+    this.abortController = new AbortController();
+    options.signal = this.abortController.signal;
     const credential = await get(options);
 
     const assertionResponse = {

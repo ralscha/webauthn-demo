@@ -10,9 +10,9 @@
     <ion-grid>
       <ion-row>
         <ion-col>
-          <ion-item lines="none">
+          <ion-item>
             <ion-input [autofocus]="true" [required]="true"
-                       autocomplete="username webauthn" errorText="Username is required"
+                       autocomplete="username webauthn"
                        label="Username" labelPlacement="stacked"
                        name="username"
                        ngModel
@@ -31,7 +31,7 @@
 
       <ion-row>
         <ion-col class="ion-margin-top">
-          <ion-button color="light" expand="block" routerDirection="forward" routerLink="/registration" type="button">
+          <ion-button (click)="forwardToRegistration()" color="light" expand="block" type="button">
             Registration
           </ion-button>
         </ion-col>
