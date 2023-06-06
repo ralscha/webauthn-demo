@@ -21,10 +21,18 @@
         </ion-col>
       </ion-row>
 
-      <ion-row>
+      <ion-row *ngIf="loginButtonEnabled">
         <ion-col>
-          <ion-button *ngIf="loginButtonEnabled" [disabled]="!form.valid" color="primary" expand="block" type="submit">
+          <ion-button [disabled]="!form.valid" color="primary" expand="block" type="submit">
             Login
+          </ion-button>
+        </ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="loginButtonEnabled">
+        <ion-col>
+          <ion-button (click)="assertionStart()" color="primary" expand="block" type="button">
+            Username-less Login
           </ion-button>
         </ion-col>
       </ion-row>

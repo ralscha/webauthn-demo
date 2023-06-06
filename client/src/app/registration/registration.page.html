@@ -47,8 +47,8 @@
         <ion-col>
           <ion-item lines="none">
             <ion-checkbox #crossPlatform="ngModel" [checked]="false" [disabled]="!platformAuthenticatorAvailable"
-                          labelPlacement="stacked" name="crossPlatform"
-                          ngModel=false>Cross Platform
+                          [ngModel]="!platformAuthenticatorAvailable" labelPlacement="stacked"
+                          name="crossPlatform">Cross Platform
             </ion-checkbox>
           </ion-item>
         </ion-col>
@@ -87,8 +87,8 @@
         <ion-col>
           <ion-item lines="none">
             <ion-checkbox #crossPlatform="ngModel" [checked]="false" [disabled]="!platformAuthenticatorAvailable"
-                          labelPlacement="stacked" name="crossPlatform"
-                          ngModel=false>Cross Platform
+                          [ngModel]="!platformAuthenticatorAvailable" labelPlacement="stacked"
+                          name="crossPlatform">Cross Platform
             </ion-checkbox>
           </ion-item>
         </ion-col>
@@ -128,8 +128,8 @@
         <ion-col>
           <ion-item lines="none">
             <ion-checkbox #crossPlatform="ngModel" [checked]="false" [disabled]="!platformAuthenticatorAvailable"
-                          labelPlacement="stacked" name="crossPlatform"
-                          ngModel=false>Cross Platform
+                          [ngModel]="!platformAuthenticatorAvailable" labelPlacement="stacked"
+                          name="crossPlatform">Cross Platform
             </ion-checkbox>
           </ion-item>
         </ion-col>

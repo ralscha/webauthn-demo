@@ -27,7 +27,9 @@ export class LoginPage implements ViewDidEnter {
       PublicKeyCredential.isConditionalMediationAvailable()
         .then(async (available) => {
           this.loginButtonEnabled = !available;
-          await this.assertionStart();
+          if (!this.loginButtonEnabled) {
+            await this.assertionStart();
+          }
         });
     }
   }
