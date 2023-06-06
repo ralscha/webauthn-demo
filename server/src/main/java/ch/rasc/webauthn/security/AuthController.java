@@ -112,7 +112,9 @@ public class AuthController {
       @RequestParam(name = "username", required = false) String username,
       @RequestParam(name = "registrationAddToken",
           required = false) String registrationAddToken,
-      @RequestParam(name = "recoveryToken", required = false) String recoveryToken) {
+      @RequestParam(name = "recoveryToken", required = false) String recoveryToken,
+      @RequestParam(name = "crossPlatform", required = false,
+          defaultValue = "false") boolean crossPlatform) {
 
     long userId = -1;
     String name = null;
@@ -186,12 +188,16 @@ public class AuthController {
     }
 
     if (mode != null) {
+      AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.PLATFORM;
+      if (crossPlatform) {
+        authenticatorAttachment = AuthenticatorAttachment.CROSS_PLATFORM;
+      }
       PublicKeyCredentialCreationOptions credentialCreation = this.relyingParty
           .startRegistration(StartRegistrationOptions.builder()
               .user(UserIdentity.builder().name(name).displayName(name)
                   .id(new ByteArray(BytesUtil.longToBytes(userId))).build())
               .authenticatorSelection(AuthenticatorSelectionCriteria.builder()
-                  .authenticatorAttachment(AuthenticatorAttachment.CROSS_PLATFORM)
+                  .authenticatorAttachment(authenticatorAttachment)
                   .residentKey(ResidentKeyRequirement.REQUIRED)
                   .userVerification(UserVerificationRequirement.PREFERRED).build())
               .build());
