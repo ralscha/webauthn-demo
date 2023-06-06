@@ -5,14 +5,16 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <form #form="ngForm" (keyup.enter)="form.valid && login(form.value)"
-        (ngSubmit)="form.valid && login(form.value)" novalidate>
+  <form #form="ngForm" (keyup.enter)="form.valid && assertionStart(form.value)"
+        (ngSubmit)="form.valid && assertionStart(form.value)" novalidate>
     <ion-grid>
       <ion-row>
         <ion-col>
           <ion-item lines="none">
-            <ion-input [required]="true" autocomplete="username webauthn" errorText="Username is required" label="Username"
-                       labelPlacement="stacked" name="username"
+            <ion-input [autofocus]="true" [required]="true"
+                       autocomplete="username webauthn" errorText="Username is required"
+                       label="Username" labelPlacement="stacked"
+                       name="username"
                        ngModel
                        type="text"></ion-input>
           </ion-item>
@@ -21,7 +23,9 @@
 
       <ion-row>
         <ion-col>
-          <ion-button [disabled]="!form.valid" color="primary" expand="block" type="submit">Login</ion-button>
+          <ion-button *ngIf="loginButtonEnabled" [disabled]="!form.valid" color="primary" expand="block" type="submit">
+            Login
+          </ion-button>
         </ion-col>
       </ion-row>
 

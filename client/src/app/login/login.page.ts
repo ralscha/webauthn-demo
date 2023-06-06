@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {LoadingController, NavController} from '@ionic/angular';
 import {MessagesService} from '../messages.service';
@@ -11,7 +11,8 @@ import {PublicKeyCredentialRequestOptionsJSON} from '@github/webauthn-json/dist/
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
+  loginButtonEnabled = true;
 
   constructor(private readonly authService: AuthService,
               private readonly loadingCtrl: LoadingController,
@@ -20,8 +21,19 @@ export class LoginPage {
               private readonly messagesService: MessagesService) {
   }
 
+  async ngOnInit(): Promise<void> {
+    // @ts-ignore
+    if (window.PublicKeyCredential && PublicKeyCredential.isConditionalMediationAvailable) {
+      const isCMA = await PublicKeyCredential.isConditionalMediationAvailable();
+      if (isCMA) {
+        this.loginButtonEnabled = false;
+        await this.assertionStart();
+      }
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async login({username}: any): Promise<void> {
+  async assertionStart({username}: any = null): Promise<void> {
     const loading = await this.messagesService.showLoading('Initiate login ...');
     await loading.present();
 
@@ -30,7 +42,7 @@ export class LoginPage {
         next: response => this.handleAssertionStart(response),
         error: () => {
           loading.dismiss();
-          this.messagesService.showErrorToast('Login failed');
+          this.messagesService.showErrorToast('Assertion start failed');
         },
         complete: () => loading.dismiss()
       });
@@ -38,6 +50,7 @@ export class LoginPage {
 
   private async handleAssertionStart(response: AssertionStartResponse): Promise<void> {
     const options = parseRequestOptionsFromJSON({publicKey: response.publicKeyCredentialRequestOptions})
+    options.mediation = 'optional';
     const credential = await get(options);
 
     const assertionResponse = {
@@ -48,11 +61,11 @@ export class LoginPage {
     const loading = await this.messagesService.showLoading('Validating ...');
     await loading.present();
 
-    this.httpClient.post<boolean>('assertion/finish', assertionResponse, {
-      withCredentials: true
+    this.httpClient.post('assertion/finish', assertionResponse, {
+      withCredentials: true, responseType: 'text'
     }).subscribe({
-      next: ok => {
-        if (ok) {
+      next: userName => {
+        if (userName) {
           this.navCtrl.navigateRoot('/home', {replaceUrl: true});
         } else {
           this.messagesService.showErrorToast('Login failed');

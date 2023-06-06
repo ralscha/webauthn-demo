@@ -16,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +34,7 @@ import com.yubico.webauthn.FinishRegistrationOptions;
 import com.yubico.webauthn.RegistrationResult;
 import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.StartAssertionOptions;
+import com.yubico.webauthn.StartAssertionOptions.StartAssertionOptionsBuilder;
 import com.yubico.webauthn.StartRegistrationOptions;
 import com.yubico.webauthn.data.AuthenticatorAttachment;
 import com.yubico.webauthn.data.AuthenticatorSelectionCriteria;
@@ -190,7 +192,7 @@ public class AuthController {
                   .id(new ByteArray(BytesUtil.longToBytes(userId))).build())
               .authenticatorSelection(AuthenticatorSelectionCriteria.builder()
                   .authenticatorAttachment(AuthenticatorAttachment.CROSS_PLATFORM)
-                  .residentKey(ResidentKeyRequirement.PREFERRED)
+                  .residentKey(ResidentKeyRequirement.REQUIRED)
                   .userVerification(UserVerificationRequirement.PREFERRED).build())
               .build());
 
@@ -273,14 +275,18 @@ public class AuthController {
   }
 
   @PostMapping("/assertion/start")
-  public AssertionStartResponse start(@RequestBody String username) {
+  public AssertionStartResponse start(@RequestBody(required = false) String username) {
     byte[] assertionId = new byte[16];
     this.random.nextBytes(assertionId);
 
     String assertionIdBase64 = Base64.getEncoder().encodeToString(assertionId);
+    StartAssertionOptionsBuilder userVerificationBuilder = StartAssertionOptions.builder()
+        .userVerification(UserVerificationRequirement.PREFERRED);
+    if (StringUtils.hasText(username)) {
+      userVerificationBuilder.username(username);
+    }
     AssertionRequest assertionRequest = this.relyingParty
-        .startAssertion(StartAssertionOptions.builder().username(username)
-            .userVerification(UserVerificationRequirement.PREFERRED).build());
+        .startAssertion(userVerificationBuilder.build());
 
     AssertionStartResponse response = new AssertionStartResponse(assertionIdBase64,
         assertionRequest);
@@ -290,7 +296,7 @@ public class AuthController {
   }
 
   @PostMapping("/assertion/finish")
-  public boolean finish(@RequestBody AssertionFinishRequest finishRequest,
+  public String finish(@RequestBody AssertionFinishRequest finishRequest,
       HttpServletRequest request, HttpServletResponse response) {
 
     AssertionStartResponse startResponse = this.assertionCache
@@ -321,7 +327,7 @@ public class AuthController {
           SecurityContextHolder.getContext().setAuthentication(auth);
           this.securityContextRepository.saveContext(SecurityContextHolder.getContext(),
               request, response);
-          return true;
+          return userDetail.getUsername();
         }
       }
     }
@@ -329,7 +335,7 @@ public class AuthController {
       Application.log.error("Assertion failed", e);
     }
 
-    return false;
+    return null;
   }
 
 }

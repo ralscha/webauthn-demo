@@ -1,9 +1,10 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {NavController} from '@ionic/angular';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessagesService} from '../messages.service';
 import {create, parseCreationOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
 import {PublicKeyCredentialCreationOptionsJSON} from '@github/webauthn-json/src/webauthn-json/basic/json';
+import {NgModel} from "@angular/forms";
 
 @Component({
   selector: 'app-registration',
@@ -12,6 +13,8 @@ import {PublicKeyCredentialCreationOptionsJSON} from '@github/webauthn-json/src/
 })
 export class RegistrationPage {
   view = 'new';
+
+  @ViewChild('username') usernameInput!: NgModel;
 
   submitError: string | null = null;
   recoveryToken: string | null = null;
@@ -58,6 +61,7 @@ export class RegistrationPage {
         next: async (response) => {
           await loading.dismiss();
           if (response.status === 'OK') {
+            this.submitError = null;
             await this.createCredentials(response);
           } else if (response.status === 'USERNAME_TAKEN') {
             this.submitError = 'usernameTaken';
@@ -67,6 +71,9 @@ export class RegistrationPage {
             } else {
               this.submitError = 'recoveryTokenInvalid';
             }
+          }
+          if (this.submitError) {
+            this.usernameInput.control.setErrors({serverValidationError: true});
           }
         },
         error: () => {

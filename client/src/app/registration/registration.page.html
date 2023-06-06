@@ -31,7 +31,9 @@
       <ion-row>
         <ion-col>
           <ion-item lines="none">
-            <ion-input #username="ngModel" [errorText]="submitError ? 'Username already registered' : 'Username is required'" [required]="true" [spellcheck]="false"
+            <ion-input #username="ngModel"
+                       [errorText]="submitError ? 'Username already registered' : 'Username is required'"
+                       [required]="true" [spellcheck]="false"
                        autocapitalize="off" autocomplete="username webauthn"
                        label="Username" labelPlacement="stacked"
                        name="username"
@@ -58,7 +60,9 @@
       <ion-row>
         <ion-col>
           <ion-item lines="none">
-            <ion-input #registrationAddCode="ngModel" [errorText]="submitError ? 'Add Authenticator Code invalid' : 'Add Authenticator Code is required'" [required]="true" [spellcheck]="false"
+            <ion-input #registrationAddCode="ngModel"
+                       [errorText]="submitError ? 'Add Authenticator Code invalid' : 'Add Authenticator Code is required'"
+                       [required]="true" [spellcheck]="false"
                        autocapitalize="off" label="Add Authenticator Code"
                        labelPlacement="stacked"
                        name="registrationAddCode" ngModel type="text"></ion-input>
@@ -84,7 +88,9 @@
       <ion-row>
         <ion-col>
           <ion-item lines="none">
-            <ion-input #recoveryCode="ngModel" [errorText]="submitError ? 'Recovery Code invalid' : 'Recovery Code is required'" [required]="true" [spellcheck]="false"
+            <ion-input #recoveryCode="ngModel"
+                       [errorText]="submitError ? 'Recovery Code invalid' : 'Recovery Code is required'"
+                       [required]="true" [spellcheck]="false"
                        autocapitalize="off" label="Recovery Code"
                        labelPlacement="stacked"
                        name="recoveryCode"
