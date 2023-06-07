@@ -36,7 +36,6 @@ import com.yubico.webauthn.RelyingParty;
 import com.yubico.webauthn.StartAssertionOptions;
 import com.yubico.webauthn.StartAssertionOptions.StartAssertionOptionsBuilder;
 import com.yubico.webauthn.StartRegistrationOptions;
-import com.yubico.webauthn.data.AuthenticatorAttachment;
 import com.yubico.webauthn.data.AuthenticatorSelectionCriteria;
 import com.yubico.webauthn.data.AuthenticatorTransport;
 import com.yubico.webauthn.data.ByteArray;
@@ -112,9 +111,7 @@ public class AuthController {
       @RequestParam(name = "username", required = false) String username,
       @RequestParam(name = "registrationAddToken",
           required = false) String registrationAddToken,
-      @RequestParam(name = "recoveryToken", required = false) String recoveryToken,
-      @RequestParam(name = "crossPlatform", required = false,
-          defaultValue = "false") boolean crossPlatform) {
+      @RequestParam(name = "recoveryToken", required = false) String recoveryToken) {
 
     long userId = -1;
     String name = null;
@@ -151,7 +148,7 @@ public class AuthController {
               APP_USER.REGISTRATION_ADD_START.gt(LocalDateTime.now().minusMinutes(10))))
           .fetchOne();
 
-      if (record == null) {
+      if (record == null) { 
         return new RegistrationStartResponse(
             RegistrationStartResponse.Status.TOKEN_INVALID);
       }
@@ -188,16 +185,11 @@ public class AuthController {
     }
 
     if (mode != null) {
-      AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.PLATFORM;
-      if (crossPlatform) {
-        authenticatorAttachment = AuthenticatorAttachment.CROSS_PLATFORM;
-      }
       PublicKeyCredentialCreationOptions credentialCreation = this.relyingParty
           .startRegistration(StartRegistrationOptions.builder()
               .user(UserIdentity.builder().name(name).displayName(name)
                   .id(new ByteArray(BytesUtil.longToBytes(userId))).build())
               .authenticatorSelection(AuthenticatorSelectionCriteria.builder()
-                  .authenticatorAttachment(authenticatorAttachment)
                   .residentKey(ResidentKeyRequirement.REQUIRED)
                   .userVerification(UserVerificationRequirement.PREFERRED).build())
               .build());
@@ -302,7 +294,7 @@ public class AuthController {
   }
 
   @PostMapping("/assertion/finish")
-  public String finish(@RequestBody AssertionFinishRequest finishRequest,
+  public boolean finish(@RequestBody AssertionFinishRequest finishRequest,
       HttpServletRequest request, HttpServletResponse response) {
 
     AssertionStartResponse startResponse = this.assertionCache
@@ -333,7 +325,7 @@ public class AuthController {
           SecurityContextHolder.getContext().setAuthentication(auth);
           this.securityContextRepository.saveContext(SecurityContextHolder.getContext(),
               request, response);
-          return userDetail.getUsername();
+          return true;
         }
       }
     }
@@ -341,7 +333,7 @@ public class AuthController {
       Application.log.error("Assertion failed", e);
     }
 
-    return null;
+    return false;
   }
 
 }

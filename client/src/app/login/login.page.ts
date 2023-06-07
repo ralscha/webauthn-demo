@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {AuthService} from '../auth.service';
-import {LoadingController, NavController, ViewDidEnter} from '@ionic/angular';
+import {LoadingController, NavController} from '@ionic/angular';
 import {MessagesService} from '../messages.service';
 import {HttpClient} from '@angular/common/http';
 import {get, parseRequestOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
@@ -11,9 +11,7 @@ import {PublicKeyCredentialRequestOptionsJSON} from '@github/webauthn-json/dist/
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements ViewDidEnter {
-  loginButtonEnabled = true;
-  private abortController: AbortController | null = null;
+export class LoginPage {
 
   constructor(private readonly authService: AuthService,
               private readonly loadingCtrl: LoadingController,
@@ -22,51 +20,23 @@ export class LoginPage implements ViewDidEnter {
               private readonly messagesService: MessagesService) {
   }
 
-  async ionViewDidEnter(): Promise<void> {
-    if (window.PublicKeyCredential && PublicKeyCredential.isConditionalMediationAvailable) {
-      PublicKeyCredential.isConditionalMediationAvailable()
-        .then(async (available) => {
-          this.loginButtonEnabled = !available;
-          if (!this.loginButtonEnabled) {
-            await this.assertionStart();
-          }
-        });
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async assertionStart(formValues: { username: string } | null = null): Promise<void> {
+  async signIn(): Promise<void> {
     const loading = await this.messagesService.showLoading('Initiate login ...');
     await loading.present();
 
-    this.httpClient.post<AssertionStartResponse>('assertion/start', formValues?.username)
+    this.httpClient.post<AssertionStartResponse>('assertion/start', null)
       .subscribe({
         next: response => this.handleAssertionStart(response),
         error: () => {
           loading.dismiss();
-          this.messagesService.showErrorToast('Assertion start failed');
+          this.messagesService.showErrorToast('Login failed');
         },
         complete: () => loading.dismiss()
       });
   }
 
-  forwardToRegistration() {
-    if (this.abortController) {
-      this.abortController.abort();
-    }
-    this.navCtrl.navigateForward('/registration');
-  }
-
   private async handleAssertionStart(response: AssertionStartResponse): Promise<void> {
     const options = parseRequestOptionsFromJSON({publicKey: response.publicKeyCredentialRequestOptions})
-
-    if (!this.loginButtonEnabled) {
-      // @ts-ignore
-      options.mediation = 'conditional';
-    }
-
-    this.abortController = new AbortController();
-    options.signal = this.abortController.signal;
     const credential = await get(options);
 
     const assertionResponse = {
@@ -77,11 +47,11 @@ export class LoginPage implements ViewDidEnter {
     const loading = await this.messagesService.showLoading('Validating ...');
     await loading.present();
 
-    this.httpClient.post('assertion/finish', assertionResponse, {
-      withCredentials: true, responseType: 'text'
+    this.httpClient.post<boolean>('assertion/finish', assertionResponse, {
+      withCredentials: true
     }).subscribe({
-      next: userName => {
-        if (userName) {
+      next: ok => {
+        if (ok) {
           this.navCtrl.navigateRoot('/home', {replaceUrl: true});
         } else {
           this.messagesService.showErrorToast('Login failed');

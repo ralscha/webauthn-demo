@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {NavController} from '@ionic/angular';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessagesService} from '../messages.service';
@@ -11,9 +11,8 @@ import {NgModel} from "@angular/forms";
   templateUrl: './registration.page.html',
   styleUrls: ['./registration.page.scss'],
 })
-export class RegistrationPage implements OnInit {
+export class RegistrationPage {
   view = 'new';
-  platformAuthenticatorAvailable = false;
 
   @ViewChild('username') usernameInput!: NgModel;
 
@@ -25,24 +24,16 @@ export class RegistrationPage implements OnInit {
               private readonly httpClient: HttpClient) {
   }
 
-  ngOnInit() {
-    // @ts-ignore
-    if (window.PublicKeyCredential && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) {
-      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
-        .then(available => this.platformAuthenticatorAvailable = available);
-    }
+  registerNew(username: string): void {
+    this.register(username, null, null);
   }
 
-  registerNew(username: string, crossPlatform: boolean): void {
-    this.register(username, null, null, crossPlatform);
+  registerAdd(registerAddToken: string): void {
+    this.register(null, registerAddToken, null);
   }
 
-  registerAdd(registerAddToken: string, crossPlatform: boolean): void {
-    this.register(null, registerAddToken, null, crossPlatform);
-  }
-
-  recover(recovery: string, crossPlatform: boolean): void {
-    this.register(null, null, recovery, crossPlatform);
+  recover(recovery: string): void {
+    this.register(null, null, recovery);
   }
 
   selectSegment($event: Event): void {
@@ -52,8 +43,7 @@ export class RegistrationPage implements OnInit {
 
   private async register(username: string | null,
                          registrationAddToken: string | null,
-                         recovery: string | null,
-                         crossPlatform: boolean): Promise<void> {
+                         recovery: string | null): Promise<void> {
     const loading = await this.messagesService.showLoading('Starting registration ...');
     await loading.present();
 
@@ -65,7 +55,6 @@ export class RegistrationPage implements OnInit {
     } else if (recovery) {
       body = body.set('recoveryToken', recovery);
     }
-    body = body.set('crossPlatform', crossPlatform.toString());
 
     this.httpClient.post<RegistrationStartResponse>('registration/start', body)
       .subscribe({

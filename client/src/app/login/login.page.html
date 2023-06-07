@@ -5,47 +5,22 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <form #form="ngForm" (keyup.enter)="form.valid && assertionStart(form.value)"
-        (ngSubmit)="form.valid && assertionStart(form.value)" novalidate>
-    <ion-grid>
-      <ion-row>
-        <ion-col>
-          <ion-item>
-            <ion-input [autofocus]="true" [required]="true"
-                       autocomplete="username webauthn"
-                       label="Username" labelPlacement="stacked"
-                       name="username"
-                       ngModel
-                       type="text"></ion-input>
-          </ion-item>
-        </ion-col>
-      </ion-row>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-button (click)="signIn()" color="primary" expand="block" type="button">
+          Sign in with passkey
+        </ion-button>
+      </ion-col>
+    </ion-row>
 
-      <ion-row *ngIf="loginButtonEnabled">
-        <ion-col>
-          <ion-button [disabled]="!form.valid" color="primary" expand="block" type="submit">
-            Login
-          </ion-button>
-        </ion-col>
-      </ion-row>
+    <ion-row>
+      <ion-col class="ion-margin-top">
+        <ion-button color="light" expand="block" routerDirection="forward" routerLink="/registration" type="button">
+          Registration
+        </ion-button>
+      </ion-col>
+    </ion-row>
 
-      <ion-row *ngIf="loginButtonEnabled">
-        <ion-col>
-          <ion-button (click)="assertionStart()" color="primary" expand="block" type="button">
-            Username-less Login
-          </ion-button>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col class="ion-margin-top">
-          <ion-button (click)="forwardToRegistration()" color="light" expand="block" type="button">
-            Registration
-          </ion-button>
-        </ion-col>
-      </ion-row>
-
-    </ion-grid>
-
-  </form>
+  </ion-grid>
 </ion-content>
