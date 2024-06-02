@@ -13,9 +13,6 @@
     <ion-segment-button value="new">
       <ion-label>New</ion-label>
     </ion-segment-button>
-    <ion-segment-button value="add">
-      <ion-label>Add</ion-label>
-    </ion-segment-button>
     <ion-segment-button value="recover">
       <ion-label>Recover</ion-label>
     </ion-segment-button>
@@ -38,34 +35,6 @@
                        label="Username" labelPlacement="stacked"
                        name="username"
                        ngModel type="text"></ion-input>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col class="ion-margin-top">
-          <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
-        </ion-col>
-      </ion-row>
-
-    </ion-grid>
-  </form>
-
-  <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && registerAdd(registrationAddCode.value)"
-        *ngIf="view === 'add'"
-        [ngFormOptions]="{updateOn: 'submit'}"
-        class="ion-margin-top" novalidate>
-    <ion-grid>
-
-      <ion-row>
-        <ion-col>
-          <ion-item lines="none">
-            <ion-input #registrationAddCode="ngModel"
-                       [errorText]="submitError ? 'Add Authenticator Code invalid' : 'Add Authenticator Code is required'"
-                       [required]="true" [spellcheck]="false"
-                       autocapitalize="off" label="Add Authenticator Code"
-                       labelPlacement="stacked"
-                       name="registrationAddCode" ngModel type="text"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -114,7 +83,7 @@
   <p>Registration successful</p>
   <ng-container *ngIf="recoveryToken !== 'OK'">
     <p>Your new recovery code:</p>
-    <code>{{recoveryToken}}</code>
+    <code>{{ recoveryToken }}</code>
     <p>If you ever need to recover acccess to your account, you need this code.
       You should print it or write it down, and store it in a safe place.
       We strongly recommend that you don't store your recovery code on a device.
