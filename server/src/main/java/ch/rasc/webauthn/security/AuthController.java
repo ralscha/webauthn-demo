@@ -16,7 +16,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +52,6 @@ import ch.rasc.webauthn.security.dto.RegistrationFinishRequest;
 import ch.rasc.webauthn.security.dto.RegistrationStartResponse;
 import ch.rasc.webauthn.security.dto.RegistrationStartResponse.Mode;
 import ch.rasc.webauthn.util.Base58;
-import ch.rasc.webauthn.util.BytesUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -64,6 +62,7 @@ public class AuthController {
   private final DSLContext dsl;
 
   private final Cache<String, RegistrationStartResponse> registrationCache;
+  private final Cache<String, Long> registrationUserIdCache;
 
   private final Cache<String, AssertionStartResponse> assertionCache;
 
@@ -83,6 +82,8 @@ public class AuthController {
     this.relyingParty = relyingParty;
     this.registrationCache = Caffeine.newBuilder().maximumSize(1000)
         .expireAfterAccess(5, TimeUnit.MINUTES).build();
+    this.registrationUserIdCache = Caffeine.newBuilder().maximumSize(1000)
+        .expireAfterAccess(5, TimeUnit.MINUTES).build();
     this.assertionCache = Caffeine.newBuilder().maximumSize(1000)
         .expireAfterAccess(5, TimeUnit.MINUTES).build();
     this.random = new SecureRandom();
@@ -94,23 +95,9 @@ public class AuthController {
     // nothing here
   }
 
-  @GetMapping("/registration-add")
-  public String registrationAdd(@AuthenticationPrincipal AppUserDetail user) {
-    byte[] addToken = new byte[16];
-    this.random.nextBytes(addToken);
-
-    this.dsl.update(APP_USER).set(APP_USER.REGISTRATION_ADD_START, LocalDateTime.now())
-        .set(APP_USER.REGISTRATION_ADD_TOKEN, addToken)
-        .where(APP_USER.ID.eq(user.getAppUserId())).execute();
-
-    return Base58.encode(addToken);
-  }
-
   @PostMapping("/registration/start")
   public RegistrationStartResponse registrationStart(
       @RequestParam(name = "username", required = false) String username,
-      @RequestParam(name = "registrationAddToken",
-          required = false) String registrationAddToken,
       @RequestParam(name = "recoveryToken", required = false) String recoveryToken) {
 
     long userId = -1;
@@ -132,30 +119,6 @@ public class AuthController {
           .getId();
       name = username;
       mode = Mode.NEW;
-    }
-    else if (registrationAddToken != null && !registrationAddToken.isEmpty()) {
-      byte[] registrationAddTokenDecoded = null;
-      try {
-        registrationAddTokenDecoded = Base58.decode(registrationAddToken);
-      }
-      catch (Exception e) {
-        return new RegistrationStartResponse(
-            RegistrationStartResponse.Status.TOKEN_INVALID);
-      }
-
-      var record = this.dsl.select(APP_USER.ID, APP_USER.USERNAME).from(APP_USER)
-          .where(APP_USER.REGISTRATION_ADD_TOKEN.eq(registrationAddTokenDecoded).and(
-              APP_USER.REGISTRATION_ADD_START.gt(LocalDateTime.now().minusMinutes(10))))
-          .fetchOne();
-
-      if (record == null) { 
-        return new RegistrationStartResponse(
-            RegistrationStartResponse.Status.TOKEN_INVALID);
-      }
-
-      userId = record.get(APP_USER.ID);
-      name = record.get(APP_USER.USERNAME);
-      mode = Mode.ADD;
     }
     else if (recoveryToken != null && !recoveryToken.isEmpty()) {
       byte[] recoveryTokenDecoded = null;
@@ -185,10 +148,14 @@ public class AuthController {
     }
 
     if (mode != null) {
+      byte[] webAuthnIdBytes = new byte[64];
+      this.random.nextBytes(webAuthnIdBytes);
+      ByteArray webAuthnId = new ByteArray(webAuthnIdBytes);
+
       PublicKeyCredentialCreationOptions credentialCreation = this.relyingParty
           .startRegistration(StartRegistrationOptions.builder()
-              .user(UserIdentity.builder().name(name).displayName(name)
-                  .id(new ByteArray(BytesUtil.longToBytes(userId))).build())
+              .user(UserIdentity.builder().name(name).displayName(name).id(webAuthnId)
+                  .build())
               .authenticatorSelection(AuthenticatorSelectionCriteria.builder()
                   .residentKey(ResidentKeyRequirement.REQUIRED)
                   .userVerification(UserVerificationRequirement.PREFERRED).build())
@@ -200,6 +167,7 @@ public class AuthController {
           Base64.getEncoder().encodeToString(registrationId), credentialCreation);
 
       this.registrationCache.put(startResponse.getRegistrationId(), startResponse);
+      this.registrationUserIdCache.put(startResponse.getRegistrationId(), userId);
 
       return startResponse;
     }
@@ -213,6 +181,9 @@ public class AuthController {
     RegistrationStartResponse startResponse = this.registrationCache
         .getIfPresent(finishRequest.getRegistrationId());
     this.registrationCache.invalidate(finishRequest.getRegistrationId());
+    Long userId = this.registrationUserIdCache
+        .getIfPresent(finishRequest.getRegistrationId());
+    this.registrationUserIdCache.invalidate(finishRequest.getRegistrationId());
 
     if (startResponse != null) {
       try {
@@ -224,7 +195,6 @@ public class AuthController {
         UserIdentity userIdentity = startResponse.getPublicKeyCredentialCreationOptions()
             .getUser();
 
-        long userId = BytesUtil.bytesToLong(userIdentity.getId().getBytes());
         String transports = null;
         Optional<SortedSet<AuthenticatorTransport>> transportOptional = registrationResult
             .getKeyId().getTransports();
@@ -237,7 +207,7 @@ public class AuthController {
             transports += at.getId();
           }
         }
-        this.credentialRepository.addCredential(userId,
+        this.credentialRepository.addCredential(userId, userIdentity.getId().getBytes(),
             registrationResult.getKeyId().getId().getBytes(),
             registrationResult.getPublicKeyCose().getBytes(), transports,
             finishRequest.getCredential().getResponse().getParsedAuthenticatorData()
@@ -255,10 +225,6 @@ public class AuthController {
           return Base58.encode(recoveryToken);
         }
 
-        this.dsl.update(APP_USER)
-            .set(APP_USER.REGISTRATION_ADD_START, (LocalDateTime) null)
-            .set(APP_USER.REGISTRATION_ADD_TOKEN, (byte[]) null)
-            .where(APP_USER.ID.eq(userId)).execute();
         return "OK";
       }
       catch (RegistrationFailedException e) {
@@ -273,16 +239,13 @@ public class AuthController {
   }
 
   @PostMapping("/assertion/start")
-  public AssertionStartResponse start(@RequestBody(required = false) String username) {
+  public AssertionStartResponse start() {
     byte[] assertionId = new byte[16];
     this.random.nextBytes(assertionId);
 
     String assertionIdBase64 = Base64.getEncoder().encodeToString(assertionId);
     StartAssertionOptionsBuilder userVerificationBuilder = StartAssertionOptions.builder()
         .userVerification(UserVerificationRequirement.PREFERRED);
-    if (StringUtils.hasText(username)) {
-      userVerificationBuilder.username(username);
-    }
     AssertionRequest assertionRequest = this.relyingParty
         .startAssertion(userVerificationBuilder.build());
 
@@ -313,10 +276,11 @@ public class AuthController {
               result.getUsername(), finishRequest.getCredential().getId());
         }
 
-        long userId = BytesUtil
-            .bytesToLong(result.getCredential().getUserHandle().getBytes());
-        var appUserRecord = this.dsl.selectFrom(APP_USER).where(APP_USER.ID.eq(userId))
-            .fetchOne();
+        var appUserRecord = this.dsl.select(APP_USER.asterisk()).from(APP_USER)
+            .innerJoin(CREDENTIALS).onKey()
+            .where(CREDENTIALS.WEBAUTHN_USER_ID
+                .eq(result.getCredential().getUserHandle().getBytes()))
+            .fetchOne().into(APP_USER);
 
         if (appUserRecord != null) {
           AppUserDetail userDetail = new AppUserDetail(appUserRecord,

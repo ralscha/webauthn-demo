@@ -3,17 +3,17 @@
  */
 package ch.rasc.webauthn.db;
 
+import ch.rasc.webauthn.db.tables.Credentials;
+
 import org.jooq.Index;
 import org.jooq.OrderField;
 import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
-import ch.rasc.webauthn.db.tables.Credentials;
-
 /**
  * A class modelling indexes of tables in webauthn.
  */
-@SuppressWarnings({ "all", "unchecked", "rawtypes" })
+@SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Indexes {
 
   // -------------------------------------------------------------------------

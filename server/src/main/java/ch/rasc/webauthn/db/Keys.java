@@ -3,21 +3,21 @@
  */
 package ch.rasc.webauthn.db;
 
+import ch.rasc.webauthn.db.tables.AppUser;
+import ch.rasc.webauthn.db.tables.Credentials;
+import ch.rasc.webauthn.db.tables.records.AppUserRecord;
+import ch.rasc.webauthn.db.tables.records.CredentialsRecord;
+
 import org.jooq.ForeignKey;
 import org.jooq.TableField;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
-import ch.rasc.webauthn.db.tables.AppUser;
-import ch.rasc.webauthn.db.tables.Credentials;
-import ch.rasc.webauthn.db.tables.records.AppUserRecord;
-import ch.rasc.webauthn.db.tables.records.CredentialsRecord;
-
 /**
  * A class modelling foreign key relationships and constraints of tables in webauthn.
  */
-@SuppressWarnings({ "all", "unchecked", "rawtypes" })
+@SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Keys {
 
   // -------------------------------------------------------------------------
@@ -35,6 +35,10 @@ public class Keys {
           new TableField[] { Credentials.CREDENTIALS.ID,
               Credentials.CREDENTIALS.APP_USER_ID },
           true);
+  public static final UniqueKey<CredentialsRecord> KEY_CREDENTIALS_WEBAUTHN_USER_ID = Internal
+      .createUniqueKey(Credentials.CREDENTIALS,
+          DSL.name("KEY_credentials_webauthn_user_id"),
+          new TableField[] { Credentials.CREDENTIALS.WEBAUTHN_USER_ID }, true);
 
   // -------------------------------------------------------------------------
   // FOREIGN KEY definitions

@@ -10,18 +10,10 @@ import {HttpClient} from '@angular/common/http';
 })
 export class HomePage implements OnInit {
   secret: string | null = null;
-  registrationAddToken: string | null = null;
 
   constructor(private readonly authService: AuthService,
               private readonly navCtrl: NavController,
               private readonly httpClient: HttpClient) {
-  }
-
-  requestRegisterAdditionalAuthenticator(): void {
-    this.httpClient.get('registration-add', {
-      responseType: 'text',
-      withCredentials: true
-    }).subscribe(text => this.registrationAddToken = text);
   }
 
   async logout(): Promise<void> {

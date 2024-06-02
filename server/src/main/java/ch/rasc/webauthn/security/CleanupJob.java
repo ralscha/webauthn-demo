@@ -23,12 +23,6 @@ public class CleanupJob {
     this.dsl.delete(APP_USER)
         .where(APP_USER.REGISTRATION_START.le(LocalDateTime.now().minusMinutes(10)))
         .execute();
-
-    // Delete all registration "add" tokens older than 10 minutes
-    this.dsl.update(APP_USER).set(APP_USER.REGISTRATION_ADD_START, (LocalDateTime) null)
-        .set(APP_USER.REGISTRATION_ADD_TOKEN, (byte[]) null)
-        .where(APP_USER.REGISTRATION_ADD_START.le(LocalDateTime.now().minusMinutes(10)))
-        .execute();
   }
 
 }

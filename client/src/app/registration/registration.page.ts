@@ -1,5 +1,4 @@
 import {Component, ViewChild} from '@angular/core';
-import {NavController} from '@ionic/angular';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessagesService} from '../messages.service';
 import {create, parseCreationOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
@@ -19,21 +18,16 @@ export class RegistrationPage {
   submitError: string | null = null;
   recoveryToken: string | null = null;
 
-  constructor(private readonly navCtrl: NavController,
-              private readonly messagesService: MessagesService,
+  constructor(private readonly messagesService: MessagesService,
               private readonly httpClient: HttpClient) {
   }
 
   registerNew(username: string): void {
-    this.register(username, null, null);
-  }
-
-  registerAdd(registerAddToken: string): void {
-    this.register(null, registerAddToken, null);
+    this.register(username, null);
   }
 
   recover(recovery: string): void {
-    this.register(null, null, recovery);
+    this.register(null, recovery);
   }
 
   selectSegment($event: Event): void {
@@ -42,7 +36,6 @@ export class RegistrationPage {
   }
 
   private async register(username: string | null,
-                         registrationAddToken: string | null,
                          recovery: string | null): Promise<void> {
     const loading = await this.messagesService.showLoading('Starting registration ...');
     await loading.present();
@@ -50,8 +43,6 @@ export class RegistrationPage {
     let body = new HttpParams();
     if (username) {
       body = body.set('username', username);
-    } else if (registrationAddToken) {
-      body = body.set('registrationAddToken', registrationAddToken);
     } else if (recovery) {
       body = body.set('recoveryToken', recovery);
     }
@@ -66,11 +57,7 @@ export class RegistrationPage {
           } else if (response.status === 'USERNAME_TAKEN') {
             this.submitError = 'usernameTaken';
           } else if (response.status === 'TOKEN_INVALID') {
-            if (registrationAddToken) {
-              this.submitError = 'addTokenInvalid';
-            } else {
-              this.submitError = 'recoveryTokenInvalid';
-            }
+            this.submitError = 'recoveryTokenInvalid';
           }
           if (this.submitError) {
             this.usernameInput.control.setErrors({serverValidationError: true});

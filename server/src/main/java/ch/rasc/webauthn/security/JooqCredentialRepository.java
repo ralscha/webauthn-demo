@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import com.yubico.webauthn.AssertionResult;
 import com.yubico.webauthn.CredentialRepository;
 import com.yubico.webauthn.RegisteredCredential;
-import com.yubico.webauthn.data.AuthenticatorTransport;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
 
@@ -28,40 +27,18 @@ public class JooqCredentialRepository implements CredentialRepository {
     this.dsl = dsl;
   }
 
-  public void addCredential(long userId, byte[] credentialId, byte[] publicKeyCose,
-      String transports, long counter) {
+  public void addCredential(long userId, byte[] webAuthnId, byte[] credentialId,
+      byte[] publicKeyCose, String transports, long counter) {
     this.dsl.insertInto(CREDENTIALS)
-        .columns(CREDENTIALS.ID, CREDENTIALS.APP_USER_ID, CREDENTIALS.PUBLIC_KEY_COSE,
-            CREDENTIALS.TRANSPORTS, CREDENTIALS.COUNT)
-        .values(credentialId, userId, publicKeyCose, transports, counter).execute();
+        .columns(CREDENTIALS.ID, CREDENTIALS.APP_USER_ID, CREDENTIALS.WEBAUTHN_USER_ID,
+            CREDENTIALS.PUBLIC_KEY_COSE, CREDENTIALS.TRANSPORTS, CREDENTIALS.COUNT)
+        .values(credentialId, userId, webAuthnId, publicKeyCose, transports, counter)
+        .execute();
   }
 
   @Override
   public Set<PublicKeyCredentialDescriptor> getCredentialIdsForUsername(String username) {
-    System.out.println("JCR: getCredentialIdsForUsername: " + username);
-
-    var records = this.dsl.select(CREDENTIALS.ID, CREDENTIALS.TRANSPORTS)
-        .from(CREDENTIALS).innerJoin(APP_USER).onKey()
-        .where(APP_USER.USERNAME.eq(username)).fetch();
-
-    Set<PublicKeyCredentialDescriptor> result = new HashSet<>();
-
-    for (var record : records) {
-      String transportsString = record.get(CREDENTIALS.TRANSPORTS);
-      Set<AuthenticatorTransport> transports = null;
-      if (transportsString != null && !transportsString.isEmpty()) {
-        transports = new HashSet<>();
-        String[] splitted = transportsString.split(",");
-        for (String element : splitted) {
-          transports.add(AuthenticatorTransport.of(element));
-        }
-      }
-      PublicKeyCredentialDescriptor descriptor = PublicKeyCredentialDescriptor.builder()
-          .id(new ByteArray(record.get(CREDENTIALS.ID))).transports(transports).build();
-      result.add(descriptor);
-    }
-
-    return result;
+    return Set.of();
   }
 
   @Override
@@ -69,9 +46,8 @@ public class JooqCredentialRepository implements CredentialRepository {
     System.out.println(
         "JCR: getUsernameForUserHandle: " + BytesUtil.bytesToLong(userHandle.getBytes()));
 
-    long id = BytesUtil.bytesToLong(userHandle.getBytes());
-    var record = this.dsl.select(APP_USER.USERNAME).from(APP_USER)
-        .where(APP_USER.ID.eq(id)).fetchOne();
+    var record = this.dsl.select(APP_USER.USERNAME).from(APP_USER).innerJoin(CREDENTIALS)
+        .onKey().where(CREDENTIALS.WEBAUTHN_USER_ID.eq(userHandle.getBytes())).fetchOne();
 
     if (record != null) {
       return Optional.of(record.get(APP_USER.USERNAME));
@@ -82,17 +58,7 @@ public class JooqCredentialRepository implements CredentialRepository {
 
   @Override
   public Optional<ByteArray> getUserHandleForUsername(String username) {
-    System.out.println("JCR: getUserHandleForUsername: " + username);
-
-    var record = this.dsl.select(APP_USER.ID).from(APP_USER)
-        .where(APP_USER.USERNAME.eq(username)).fetchOne();
-
-    if (record != null) {
-      Long id = record.get(APP_USER.ID);
-      return Optional.of(new ByteArray(BytesUtil.longToBytes(id)));
-    }
-
-    return Optional.empty();
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -101,12 +67,10 @@ public class JooqCredentialRepository implements CredentialRepository {
     System.out.println("JCR: lookup: " + credentialId + ":"
         + BytesUtil.bytesToLong(userHandle.getBytes()));
 
-    long id = BytesUtil.bytesToLong(userHandle.getBytes());
-
     var record = this.dsl
         .select(CREDENTIALS.ID, CREDENTIALS.PUBLIC_KEY_COSE, CREDENTIALS.COUNT)
-        .from(CREDENTIALS).innerJoin(APP_USER).onKey()
-        .where(APP_USER.ID.eq(id).and(CREDENTIALS.ID.eq(credentialId.getBytes())))
+        .from(CREDENTIALS).where(CREDENTIALS.WEBAUTHN_USER_ID.eq(userHandle.getBytes())
+            .and(CREDENTIALS.ID.eq(credentialId.getBytes())))
         .fetchOne();
 
     if (record != null) {
@@ -144,11 +108,11 @@ public class JooqCredentialRepository implements CredentialRepository {
     System.out
         .println("JCR: updateSignatureCount: " + result.getCredential().getUserHandle());
 
-    long id = BytesUtil.bytesToLong(result.getCredential().getUserHandle().getBytes());
     int noOfUpdates = this.dsl.update(CREDENTIALS)
         .set(CREDENTIALS.COUNT, result.getSignatureCount())
         .where(CREDENTIALS.ID.eq(result.getCredential().getCredentialId().getBytes())
-            .and(CREDENTIALS.APP_USER_ID.eq(id)))
+            .and(CREDENTIALS.WEBAUTHN_USER_ID
+                .eq(result.getCredential().getUserHandle().getBytes())))
         .execute();
 
     return noOfUpdates == 1;

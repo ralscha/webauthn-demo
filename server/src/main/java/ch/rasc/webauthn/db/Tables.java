@@ -9,7 +9,7 @@ import ch.rasc.webauthn.db.tables.Credentials;
 /**
  * Convenience access to all tables in webauthn.
  */
-@SuppressWarnings({ "all", "unchecked", "rawtypes" })
+@SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Tables {
 
   /**

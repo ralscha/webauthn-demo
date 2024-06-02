@@ -4,7 +4,7 @@ import {FormsModule} from '@angular/forms';
 import {RouterModule, Routes} from '@angular/router';
 import {IonicModule} from '@ionic/angular';
 import {RegistrationPage} from './registration.page';
-import {HttpClientModule} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 
 const routes: Routes = [
   {
@@ -14,14 +14,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
+  declarations: [RegistrationPage], imports: [CommonModule,
     FormsModule,
     IonicModule,
-    HttpClientModule,
-    RouterModule.forChild(routes)
-  ],
-  declarations: [RegistrationPage]
+    RouterModule.forChild(routes)], providers: [provideHttpClient(withInterceptorsFromDi())]
 })
 export class RegistrationPageModule {
 }
