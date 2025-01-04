@@ -7,88 +7,83 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content *ngIf="!recoveryToken" class="ion-padding">
-
-  <ion-segment (ionChange)="selectSegment($event)" [ngModel]="view">
-    <ion-segment-button value="new">
-      <ion-label>New</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="recover">
-      <ion-label>Recover</ion-label>
-    </ion-segment-button>
-  </ion-segment>
-
-
-  <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && registerNew(username.value)"
-        *ngIf="view === 'new'"
+@if (!recoveryToken) {
+  <ion-content class="ion-padding">
+    <ion-segment (ionChange)="selectSegment($event)" [ngModel]="view">
+      <ion-segment-button value="new">
+        <ion-label>New</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="recover">
+        <ion-label>Recover</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+    @if (view === 'new') {
+      <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && registerNew(username.value)"
         [ngFormOptions]="{updateOn: 'submit'}"
         class="ion-margin-top" novalidate>
-    <ion-grid>
-
-      <ion-row>
-        <ion-col>
-          <ion-item lines="none">
-            <ion-input #username="ngModel"
-                       [errorText]="submitError ? 'Username already registered' : 'Username is required'"
-                       [required]="true" [spellcheck]="false"
-                       autocapitalize="off" autocomplete="username webauthn"
-                       label="Username" labelPlacement="stacked"
-                       name="username"
-                       ngModel type="text"></ion-input>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col class="ion-margin-top">
-          <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
-        </ion-col>
-      </ion-row>
-
-    </ion-grid>
-  </form>
-
-  <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && recover(recoveryCode.value)"
-        *ngIf="view === 'recover'"
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-item lines="none">
+                <ion-input #username="ngModel"
+                  [errorText]="submitError ? 'Username already registered' : 'Username is required'"
+                  [required]="true" [spellcheck]="false"
+                  autocapitalize="off" autocomplete="username webauthn"
+                  label="Username" labelPlacement="stacked"
+                  name="username"
+                ngModel type="text"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-margin-top">
+              <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </form>
+    }
+    @if (view === 'recover') {
+      <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && recover(recoveryCode.value)"
         [ngFormOptions]="{updateOn: 'submit'}"
         class="ion-margin-top" novalidate>
-    <ion-grid>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-item lines="none">
+                <ion-input #recoveryCode="ngModel"
+                  [errorText]="submitError ? 'Recovery Code invalid' : 'Recovery Code is required'"
+                  [required]="true" [spellcheck]="false"
+                  autocapitalize="off" label="Recovery Code"
+                  labelPlacement="stacked"
+                  name="recoveryCode"
+                ngModel type="text"></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-margin-top">
+              <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </form>
+    }
+  </ion-content>
+}
 
-      <ion-row>
-        <ion-col>
-          <ion-item lines="none">
-            <ion-input #recoveryCode="ngModel"
-                       [errorText]="submitError ? 'Recovery Code invalid' : 'Recovery Code is required'"
-                       [required]="true" [spellcheck]="false"
-                       autocapitalize="off" label="Recovery Code"
-                       labelPlacement="stacked"
-                       name="recoveryCode"
-                       ngModel type="text"></ion-input>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-
-      <ion-row>
-        <ion-col class="ion-margin-top">
-          <ion-button color="secondary" expand="block" type="submit">Register</ion-button>
-        </ion-col>
-      </ion-row>
-
-    </ion-grid>
-  </form>
-
-</ion-content>
-
-<ion-content *ngIf="recoveryToken" class="ion-padding ion-text-center">
-  <p>Registration successful</p>
-  <ng-container *ngIf="recoveryToken !== 'OK'">
-    <p>Your new recovery code:</p>
-    <code>{{ recoveryToken }}</code>
-    <p>If you ever need to recover acccess to your account, you need this code.
-      You should print it or write it down, and store it in a safe place.
-      We strongly recommend that you don't store your recovery code on a device.
-    </p>
-  </ng-container>
-  <ion-button color="secondary" expand="block" routerDirection="root" routerLink="/login">Go to Login</ion-button>
-</ion-content>
+@if (recoveryToken) {
+  <ion-content class="ion-padding ion-text-center">
+    <p>Registration successful</p>
+    @if (recoveryToken !== 'OK') {
+      <p>Your new recovery code:</p>
+      <code>{{ recoveryToken }}</code>
+      <p>If you ever need to recover acccess to your account, you need this code.
+        You should print it or write it down, and store it in a safe place.
+        We strongly recommend that you don't store your recovery code on a device.
+      </p>
+    }
+    <ion-button color="secondary" expand="block" routerDirection="root" routerLink="/login">Go to Login</ion-button>
+  </ion-content>
+}
 

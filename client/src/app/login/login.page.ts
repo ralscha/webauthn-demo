@@ -3,12 +3,14 @@ import {NavController} from '@ionic/angular';
 import {MessagesService} from '../messages.service';
 import {HttpClient} from '@angular/common/http';
 import {get, parseRequestOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
-import {PublicKeyCredentialRequestOptionsJSON} from '@github/webauthn-json/dist/types/basic/json';
+// @ts-expect-error
+import {PublicKeyCredentialRequestOptionsJSON} from "@github/webauthn-json/dist/types/basic/json";
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
+    selector: 'app-login',
+    templateUrl: './login.page.html',
+    styleUrls: ['./login.page.scss'],
+    standalone: false
 })
 export class LoginPage {
 

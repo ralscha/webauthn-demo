@@ -2,13 +2,15 @@ import {Component, ViewChild} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessagesService} from '../messages.service';
 import {create, parseCreationOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
-import {PublicKeyCredentialCreationOptionsJSON} from '@github/webauthn-json/src/webauthn-json/basic/json';
 import {NgModel} from "@angular/forms";
+// @ts-expect-error
+import {PublicKeyCredentialCreationOptionsJSON} from "@github/webauthn-json/dist/types/basic/json";
 
 @Component({
-  selector: 'app-registration',
-  templateUrl: './registration.page.html',
-  styleUrls: ['./registration.page.scss'],
+    selector: 'app-registration',
+    templateUrl: './registration.page.html',
+    styleUrls: ['./registration.page.scss'],
+    standalone: false
 })
 export class RegistrationPage {
   view = 'new';
