@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {catchError, map, tap} from 'rxjs/operators';
@@ -7,10 +7,9 @@ import {catchError, map, tap} from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private loggedIn = false;
+  private readonly httpClient = inject(HttpClient);
 
-  constructor(private readonly httpClient: HttpClient) {
-  }
+  private loggedIn = false;
 
   isAuthenticated(): Observable<boolean> {
     return this.httpClient.get<void>('authenticate', {

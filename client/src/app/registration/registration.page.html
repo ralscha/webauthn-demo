@@ -19,19 +19,19 @@
     </ion-segment>
     @if (view === 'new') {
       <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && registerNew(username.value)"
-        [ngFormOptions]="{updateOn: 'submit'}"
-        class="ion-margin-top" novalidate>
+            [ngFormOptions]="{updateOn: 'submit'}"
+            class="ion-margin-top" novalidate>
         <ion-grid>
           <ion-row>
             <ion-col>
               <ion-item lines="none">
                 <ion-input #username="ngModel"
-                  [errorText]="submitError ? 'Username already registered' : 'Username is required'"
-                  [required]="true" [spellcheck]="false"
-                  autocapitalize="off" autocomplete="username webauthn"
-                  label="Username" labelPlacement="stacked"
-                  name="username"
-                ngModel type="text"></ion-input>
+                           [errorText]="submitError ? 'Username already registered' : 'Username is required'"
+                           [required]="true" [spellcheck]="false"
+                           autocapitalize="off" autocomplete="username webauthn"
+                           label="Username" labelPlacement="stacked"
+                           name="username"
+                           ngModel type="text"></ion-input>
               </ion-item>
             </ion-col>
           </ion-row>
@@ -45,19 +45,19 @@
     }
     @if (view === 'recover') {
       <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && recover(recoveryCode.value)"
-        [ngFormOptions]="{updateOn: 'submit'}"
-        class="ion-margin-top" novalidate>
+            [ngFormOptions]="{updateOn: 'submit'}"
+            class="ion-margin-top" novalidate>
         <ion-grid>
           <ion-row>
             <ion-col>
               <ion-item lines="none">
                 <ion-input #recoveryCode="ngModel"
-                  [errorText]="submitError ? 'Recovery Code invalid' : 'Recovery Code is required'"
-                  [required]="true" [spellcheck]="false"
-                  autocapitalize="off" label="Recovery Code"
-                  labelPlacement="stacked"
-                  name="recoveryCode"
-                ngModel type="text"></ion-input>
+                           [errorText]="submitError ? 'Recovery Code invalid' : 'Recovery Code is required'"
+                           [required]="true" [spellcheck]="false"
+                           autocapitalize="off" label="Recovery Code"
+                           labelPlacement="stacked"
+                           name="recoveryCode"
+                           ngModel type="text"></ion-input>
               </ion-item>
             </ion-col>
           </ion-row>

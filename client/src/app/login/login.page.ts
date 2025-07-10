@@ -1,23 +1,34 @@
-import {Component} from '@angular/core';
-import {NavController} from '@ionic/angular';
+import {Component, inject} from '@angular/core';
+import {
+  IonButton,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonRouterLink,
+  IonRow,
+  IonTitle,
+  IonToolbar,
+  NavController
+} from '@ionic/angular/standalone';
 import {MessagesService} from '../messages.service';
 import {HttpClient} from '@angular/common/http';
 import {get, parseRequestOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
-// @ts-expect-error
+// @ts-ignore
 import {PublicKeyCredentialRequestOptionsJSON} from "@github/webauthn-json/dist/types/basic/json";
+import {RouterLink} from '@angular/router';
 
 @Component({
-    selector: 'app-login',
-    templateUrl: './login.page.html',
-    styleUrls: ['./login.page.scss'],
-    standalone: false
+  selector: 'app-login',
+  templateUrl: './login.page.html',
+  styleUrls: ['./login.page.scss'],
+  imports: [RouterLink, IonRouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton]
 })
 export class LoginPage {
+  private readonly navCtrl = inject(NavController);
+  private readonly httpClient = inject(HttpClient);
+  private readonly messagesService = inject(MessagesService);
 
-  constructor(private readonly navCtrl: NavController,
-              private readonly httpClient: HttpClient,
-              private readonly messagesService: MessagesService) {
-  }
 
   async signIn(): Promise<void> {
     const loading = await this.messagesService.showLoading('Initiate login ...');

@@ -1,28 +1,42 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, inject, ViewChild} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessagesService} from '../messages.service';
 import {create, parseCreationOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
-import {NgModel} from "@angular/forms";
+import {FormsModule, NgModel} from "@angular/forms";
 // @ts-expect-error
 import {PublicKeyCredentialCreationOptionsJSON} from "@github/webauthn-json/dist/types/basic/json";
+import {RouterLink} from '@angular/router';
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonRow,
+  IonSegment,
+  IonSegmentButton,
+  IonTitle,
+  IonToolbar
+} from "@ionic/angular/standalone";
 
 @Component({
-    selector: 'app-registration',
-    templateUrl: './registration.page.html',
-    styleUrls: ['./registration.page.scss'],
-    standalone: false
+  selector: 'app-registration',
+  templateUrl: './registration.page.html',
+  styleUrls: ['./registration.page.scss'],
+  imports: [FormsModule, RouterLink, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonGrid, IonRow, IonCol, IonItem, IonInput, IonButton]
 })
 export class RegistrationPage {
   view = 'new';
-
   @ViewChild('username') usernameInput!: NgModel;
-
   submitError: string | null = null;
   recoveryToken: string | null = null;
-
-  constructor(private readonly messagesService: MessagesService,
-              private readonly httpClient: HttpClient) {
-  }
+  private readonly messagesService = inject(MessagesService);
+  private readonly httpClient = inject(HttpClient);
 
   registerNew(username: string): void {
     this.register(username, null);
