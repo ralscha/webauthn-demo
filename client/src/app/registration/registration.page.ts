@@ -1,4 +1,4 @@
-import {Component, inject, ViewChild} from '@angular/core';
+import {Component, inject, viewChild} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessagesService} from '../messages.service';
 import {create, parseCreationOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
@@ -32,7 +32,7 @@ import {
 })
 export class RegistrationPage {
   view = 'new';
-  @ViewChild('username') usernameInput!: NgModel;
+  readonly usernameInput = viewChild.required<NgModel>('username');
   submitError: string | null = null;
   recoveryToken: string | null = null;
   private readonly messagesService = inject(MessagesService);
@@ -76,7 +76,7 @@ export class RegistrationPage {
             this.submitError = 'recoveryTokenInvalid';
           }
           if (this.submitError) {
-            this.usernameInput.control.setErrors({serverValidationError: true});
+            this.usernameInput().control.setErrors({serverValidationError: true});
           }
         },
         error: () => {
