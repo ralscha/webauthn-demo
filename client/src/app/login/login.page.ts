@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {
   IonButton,
   IonCol,
@@ -12,71 +12,74 @@ import {
   NavController
 } from '@ionic/angular/standalone';
 import {MessagesService} from '../messages.service';
-import {HttpClient} from '@angular/common/http';
-import {get, parseRequestOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
-// @ts-ignore
-import {PublicKeyCredentialRequestOptionsJSON} from "@github/webauthn-json/dist/types/basic/json";
+import {AuthService} from '../auth.service';
 import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
-  styleUrls: ['./login.page.scss'],
   imports: [RouterLink, IonRouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonButton]
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   private readonly navCtrl = inject(NavController);
-  private readonly httpClient = inject(HttpClient);
+  private readonly authService = inject(AuthService);
   private readonly messagesService = inject(MessagesService);
 
+  conditionalMediationAvailable = false;
 
+  async ngOnInit(): Promise<void> {
+    // Check if conditional mediation is available for autofill
+    this.conditionalMediationAvailable = await this.authService.isConditionalMediationAvailable().toPromise() || false;
+
+    // Setup conditional mediation if available
+    if (this.conditionalMediationAvailable) {
+      this.setupConditionalMediation();
+    }
+  }
+
+  /**
+   * Handle sign in button click
+   */
   async signIn(): Promise<void> {
-    const loading = await this.messagesService.showLoading('Initiate login ...');
+    const loading = await this.messagesService.showLoading('Authenticating...');
     await loading.present();
 
-    this.httpClient.post<AssertionStartResponse>('assertion/start', null)
-      .subscribe({
-        next: response => this.handleAssertionStart(response),
-        error: () => {
-          loading.dismiss();
-          this.messagesService.showErrorToast('Login failed');
+    try {
+      const redirectUrl = await this.authService.authenticateWithWebAuthn(false).toPromise();
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        this.navCtrl.navigateRoot('/home', { replaceUrl: true });
+      }
+    } catch (error: any) {
+      console.error('Authentication failed:', error);
+      this.messagesService.showErrorToast(error.message || 'Authentication failed');
+    } finally {
+      loading.dismiss();
+    }
+  }
+
+  /**
+   * Setup conditional mediation for autofill
+   */
+  private async setupConditionalMediation(): Promise<void> {
+    try {
+      // Start conditional mediation in the background
+      this.authService.authenticateWithWebAuthn(true).subscribe({
+        next: (redirectUrl) => {
+          if (redirectUrl) {
+            window.location.href = redirectUrl;
+          } else {
+            this.navCtrl.navigateRoot('/home', { replaceUrl: true });
+          }
         },
-        complete: () => loading.dismiss()
-      });
-  }
-
-  private async handleAssertionStart(response: AssertionStartResponse): Promise<void> {
-    const options = parseRequestOptionsFromJSON({publicKey: response.publicKeyCredentialRequestOptions})
-    const credential = await get(options);
-
-    const assertionResponse = {
-      assertionId: response.assertionId,
-      credential: credential
-    };
-
-    const loading = await this.messagesService.showLoading('Validating ...');
-    await loading.present();
-
-    this.httpClient.post<boolean>('assertion/finish', assertionResponse, {
-      withCredentials: true
-    }).subscribe({
-      next: ok => {
-        if (ok) {
-          this.navCtrl.navigateRoot('/home', {replaceUrl: true});
-        } else {
-          this.messagesService.showErrorToast('Login failed');
+        error: (error) => {
+          // Conditional mediation errors are usually due to user cancellation or no credentials
+          console.log('Conditional mediation ended:', error.message);
         }
-      },
-      error: () => {
-        loading.dismiss();
-        this.messagesService.showErrorToast('Login failed');
-      },
-      complete: () => loading.dismiss()
-    });
+      });
+    } catch (error) {
+      console.log('Conditional mediation not available or failed:', error);
+    }
   }
-}
-
-interface AssertionStartResponse {
-  assertionId: string;
-  publicKeyCredentialRequestOptions: PublicKeyCredentialRequestOptionsJSON;
 }

@@ -42,6 +42,33 @@
           </ion-row>
         </ion-grid>
       </form>
+      
+      <!-- WebAuthn Direct Registration -->
+      <form #webauthnForm="ngForm" (ngSubmit)="webauthnForm.valid && registerWebAuthn()"
+            [ngFormOptions]="{updateOn: 'submit'}"
+            class="ion-margin-top" novalidate>
+        <h2>Or Register with WebAuthn</h2>
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-item lines="none">
+                <ion-input [(ngModel)]="label"
+                           [required]="true" [spellcheck]="false"
+                           autocapitalize="off"
+                           label="Passkey Label" labelPlacement="stacked"
+                           name="label"
+                           placeholder="e.g., My Phone, My Laptop"
+                           type="text" />
+              </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col class="ion-margin-top">
+              <ion-button color="primary" expand="block" type="submit">Create Passkey</ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </form>
     }
     @if (view === 'recover') {
       <form #registrationForm="ngForm" (ngSubmit)="registrationForm.valid && recover(recoveryCode.value)"
