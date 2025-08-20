@@ -8,11 +8,6 @@
   <ion-grid>
     <ion-row>
       <ion-col>
-        @if (conditionalMediationAvailable) {
-          <p class="ion-text-center">
-            <small>WebAuthn autofill is available. You can use your passkey from the username field in any form.</small>
-          </p>
-        }
         <ion-button (click)="signIn()" color="primary" expand="block" type="button">
           Sign in with passkey
         </ion-button>

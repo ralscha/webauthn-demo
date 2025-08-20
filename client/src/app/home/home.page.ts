@@ -6,7 +6,7 @@ import {HttpClient} from '@angular/common/http';
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
-  styleUrl: './home.page.css',
+  styleUrls: ['./home.page.scss'],
   imports: [
     IonHeader,
     IonToolbar,
