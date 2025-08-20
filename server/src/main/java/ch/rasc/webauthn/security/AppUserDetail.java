@@ -1,16 +1,12 @@
 package ch.rasc.webauthn.security;
 
-import java.util.Collection;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import ch.rasc.javersdemo.db.tables.records.AppUserRecord;
+import ch.rasc.webauthn.db.tables.records.AppUserRecord;
 
-public class AppUserDetail implements UserDetails {
-
-  private static final long serialVersionUID = 1L;
+public class AppUserDetail {
 
   private final Long appUserId;
 
@@ -28,40 +24,12 @@ public class AppUserDetail implements UserDetails {
     return this.appUserId;
   }
 
-  @Override
   public String getUsername() {
     return this.username;
   }
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
+  public Set<GrantedAuthority> getAuthorities() {
     return this.authorities;
-  }
-
-  @Override
-  public String getPassword() {
-    // WebAuthn doesn't use passwords
-    return null;
-  }
-
-  @Override
-  public boolean isAccountNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    return true;
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return true;
   }
 
 }

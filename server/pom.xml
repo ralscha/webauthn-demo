@@ -6,18 +6,19 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.0-M1</version>
+		<version>3.5.4</version>
 		<relativePath />
 	</parent>
 	<groupId>ch.rasc</groupId>
-	<artifactId>webauthn-springsecurity-demo</artifactId>
+	<artifactId>webauthn-demo</artifactId>
 	<version>0.0.1</version>
-	<name>webauthn-springsecurity-demo</name>
-	<description>WebAuthn Spring-Security Demo</description>
+	<name>webauthn-demo</name>
+	<description>WebAuthn Demo</description>
 
 	<properties>
-		<java.version>24</java.version>
+		<java.version>22</java.version>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -33,11 +34,6 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>com.webauthn4j</groupId>
-		    <artifactId>webauthn4j-core</artifactId>
-		    <version>0.29.5.RELEASE</version>
-		</dependency>		
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
@@ -51,15 +47,32 @@
 			<artifactId>flyway-core</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.flywaydb</groupId>
-		    <artifactId>flyway-database-postgresql</artifactId>
-		</dependency>		
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-mysql</artifactId>
+		</dependency>
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<scope>runtime</scope>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.yubico</groupId>
+			<artifactId>webauthn-server-core</artifactId>
+			<version>2.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.yubico</groupId>
+			<artifactId>yubico-util</artifactId>
+			<version>2.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
@@ -68,13 +81,18 @@
 	</dependencies>
 
 	<build>
+		<finalName>webauthn-demo</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<executable>true</executable>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
+
 
 	<profiles>
 		<profile>
@@ -82,57 +100,143 @@
 			<build>
 				<plugins>
 					<plugin>
-			    <groupId>org.testcontainers</groupId>
-			    <artifactId>testcontainers-jooq-codegen-maven-plugin</artifactId>
-			    <version>0.0.4</version>
+						<groupId>org.jooq</groupId>
+						<artifactId>jooq-codegen-maven</artifactId>
+						<version>${jooq.version}</version>
 						<executions>
 							<execution>
+								<id>generate-jooq-sources</id>
+								<phase>generate-sources</phase>
 								<goals>
 									<goal>generate</goal>
 								</goals>
-							</execution>
-						</executions>
-						<dependencies>
-							<dependency>
-			            <groupId>org.postgresql</groupId>
-			            <artifactId>postgresql</artifactId>
-			            <version>42.7.4</version>
-			        </dependency>
-			        <dependency>
-			            <groupId>org.testcontainers</groupId>
-			            <artifactId>postgresql</artifactId>
-			            <version>${testcontainers.version}</version>
-							</dependency>
-						</dependencies>
 								<configuration>
-			        <database>
-			            <type>POSTGRES</type>
-			            <containerImage>postgres:17-alpine</containerImage>
-			        </database>
-			        <flyway>
-			            <locations>filesystem:src/main/resources/db/migration</locations>
-			        </flyway>
-			        <jooq>
 									<generator>
 										<generate>
 											<pojos>false</pojos>
 											<daos>false</daos>
+											<javaTimeTypes>true</javaTimeTypes>
 										</generate>
-			            <target>
-                            <packageName>ch.rasc.javersdemo.db</packageName>
-                            <directory>${project.build.directory}/generated-sources/jooq</directory>
-                        </target>
 										<database>
-											<includes>.*</includes>
-                            <inputSchema>public</inputSchema>
+											<name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
+											<inputCatalog></inputCatalog>
+											<inputSchema>PUBLIC</inputSchema>
+											<outputSchemaToDefault>true</outputSchemaToDefault>
+											<outputCatalogToDefault>true</outputCatalogToDefault>
+											<properties>
+												<property>
+													<key>sort</key>
+													<value>semantic</value>
+												</property>
+												<property>
+													<key>scripts</key>
+													<value>src/main/resources/db/migration/*</value>
+												</property>
+											</properties>
 										</database>
+										<target>
+											<clean>true</clean>
+											<packageName>ch.rasc.webauthn.db</packageName>
+											<directory>src/main/java</directory>
+										</target>
 									</generator>
-			        </jooq>
 								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>org.jooq</groupId>
+								<artifactId>jooq-meta-extensions</artifactId>
+								<version>${jooq.version}</version>
+							</dependency>
+						</dependencies>
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
+
+		<profile>
+			<id>jooq-db</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jooq</groupId>
+						<artifactId>jooq-codegen-maven</artifactId>
+						<version>${jooq.version}</version>
+						<executions>
+							<execution>
+								<id>generate-jooq-sources</id>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<jdbc>
+										<url>jdbc:mariadb://localhost:3306/webauthn?serverTimezone=UTC&amp;useMysqlMetadata=true</url>
+										<user>root</user>
+										<password>password</password>
+									</jdbc>
+									<generator>
+										<generate>
+											<pojos>false</pojos>
+											<daos>false</daos>
+											<javaTimeTypes>true</javaTimeTypes>
+										</generate>
+										<database>
+											<name>org.jooq.meta.mariadb.MariaDBDatabase</name>
+											<includes>.*</includes>
+											<inputSchema>webauthn</inputSchema>
+											<excludes>flyway_schema_history</excludes>
+										</database>
+										<target>
+											<clean>true</clean>
+											<packageName>ch.rasc.webauthn.db</packageName>
+											<directory>src/main/java</directory>
+										</target>
+									</generator>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>org.jooq</groupId>
+								<artifactId>jooq-meta-extensions</artifactId>
+								<version>${jooq.version}</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>production</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>prepare-package</phase>
+								<configuration>
+									<target>
+										<copy todir="${basedir}/target/classes/static">
+											<fileset dir="${basedir}/../client/dist/app">
+												<include name="**" />
+											</fileset>
+										</copy>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
 	</profiles>
 
 </project>

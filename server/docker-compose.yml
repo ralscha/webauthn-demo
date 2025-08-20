@@ -1,15 +1,8 @@
 services:
-  postgres:
-    image: postgres:17-alpine
+  wa_db:
+    image: mariadb
     environment:
-      POSTGRES_DB: javersdemo
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      MARIADB_DATABASE: webauthn
+      MARIADB_ROOT_PASSWORD: password
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
-    driver: local
+      - "3306:3306"
