@@ -13,9 +13,6 @@ import {
 } from '@ionic/angular/standalone';
 import {MessagesService} from '../messages.service';
 import {HttpClient} from '@angular/common/http';
-import {get, parseRequestOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
-// @ts-ignore
-import {PublicKeyCredentialRequestOptionsJSON} from "@github/webauthn-json/dist/types/basic/json";
 import {RouterLink} from '@angular/router';
 
 @Component({
@@ -46,8 +43,9 @@ export class LoginPage {
   }
 
   private async handleAssertionStart(response: AssertionStartResponse): Promise<void> {
-    const options = parseRequestOptionsFromJSON({publicKey: response.publicKeyCredentialRequestOptions})
-    const credential = await get(options);
+    const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(response.publicKeyCredentialRequestOptions);
+    const cred = (await navigator.credentials.get({publicKey})) as PublicKeyCredential;
+    const credential = cred.toJSON();
 
     const assertionResponse = {
       assertionId: response.assertionId,

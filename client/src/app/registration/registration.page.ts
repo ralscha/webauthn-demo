@@ -1,10 +1,7 @@
 import {Component, inject, viewChild} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {MessagesService} from '../messages.service';
-import {create, parseCreationOptionsFromJSON,} from "@github/webauthn-json/browser-ponyfill";
 import {FormsModule, NgModel} from "@angular/forms";
-// @ts-expect-error
-import {PublicKeyCredentialCreationOptionsJSON} from "@github/webauthn-json/dist/types/basic/json";
 import {RouterLink} from '@angular/router';
 import {
   IonBackButton,
@@ -88,8 +85,9 @@ export class RegistrationPage {
   }
 
   private async createCredentials(response: RegistrationStartResponse): Promise<void> {
-    const options = parseCreationOptionsFromJSON({publicKey: response.publicKeyCredentialCreationOptions})
-    const credential = await create(options);
+    const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(response.publicKeyCredentialCreationOptions);
+    const cred = (await navigator.credentials.create({publicKey})) as PublicKeyCredential;
+    const credential = cred.toJSON();
 
     const credentialResponse = {
       registrationId: response.registrationId,
