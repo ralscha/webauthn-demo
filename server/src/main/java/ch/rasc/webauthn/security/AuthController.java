@@ -1,8 +1,5 @@
 package ch.rasc.webauthn.security;
 
-import static ch.rasc.webauthn.db.tables.AppUser.APP_USER;
-import static ch.rasc.webauthn.db.tables.Credentials.CREDENTIALS;
-
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -12,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.jooq.DSLContext;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -46,6 +42,8 @@ import com.yubico.webauthn.exception.AssertionFailedException;
 import com.yubico.webauthn.exception.RegistrationFailedException;
 
 import ch.rasc.webauthn.Application;
+import static ch.rasc.webauthn.db.tables.AppUser.APP_USER;
+import static ch.rasc.webauthn.db.tables.Credentials.CREDENTIALS;
 import ch.rasc.webauthn.security.dto.AssertionFinishRequest;
 import ch.rasc.webauthn.security.dto.AssertionStartResponse;
 import ch.rasc.webauthn.security.dto.RegistrationFinishRequest;
@@ -113,16 +111,19 @@ public class AuthController {
             RegistrationStartResponse.Status.USERNAME_TAKEN);
       }
 
-      userId = this.dsl
+      var insertedUser = this.dsl
           .insertInto(APP_USER, APP_USER.USERNAME, APP_USER.REGISTRATION_START)
-          .values(username, LocalDateTime.now()).returning(APP_USER.ID).fetchOne()
-          .getId();
+          .values(username, LocalDateTime.now()).returning(APP_USER.ID).fetchOne();
+      if (insertedUser == null) {
+        throw new IllegalStateException("Failed to create user");
+      }
+
+      userId = insertedUser.getId();
       name = username;
       mode = Mode.NEW;
     }
     else if (recoveryToken != null && !recoveryToken.isEmpty()) {
-      byte[] recoveryTokenDecoded = null;
-
+      byte[] recoveryTokenDecoded;
       try {
         recoveryTokenDecoded = Base58.decode(recoveryToken);
       }
@@ -264,6 +265,11 @@ public class AuthController {
         .getIfPresent(finishRequest.getAssertionId());
     this.assertionCache.invalidate(finishRequest.getAssertionId());
 
+    if (startResponse == null) {
+      Application.log.error("invalid assertion finish request");
+      return false;
+    }
+
     try {
       AssertionResult result = this.relyingParty.finishAssertion(
           FinishAssertionOptions.builder().request(startResponse.getAssertionRequest())
@@ -276,13 +282,14 @@ public class AuthController {
               result.getUsername(), finishRequest.getCredential().getId());
         }
 
-        var appUserRecord = this.dsl.select(APP_USER.asterisk()).from(APP_USER)
+        var appUserRecordResult = this.dsl.select(APP_USER.asterisk()).from(APP_USER)
             .innerJoin(CREDENTIALS).onKey()
             .where(CREDENTIALS.WEBAUTHN_USER_ID
                 .eq(result.getCredential().getUserHandle().getBytes()))
-            .fetchOne().into(APP_USER);
+            .fetchOne();
 
-        if (appUserRecord != null) {
+        if (appUserRecordResult != null) {
+          var appUserRecord = appUserRecordResult.into(APP_USER);
           AppUserDetail userDetail = new AppUserDetail(appUserRecord,
               new SimpleGrantedAuthority("USER"));
           AppUserAuthentication auth = new AppUserAuthentication(userDetail);

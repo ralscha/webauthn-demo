@@ -1,8 +1,5 @@
 package ch.rasc.webauthn.security;
 
-import static ch.rasc.webauthn.db.tables.AppUser.APP_USER;
-import static ch.rasc.webauthn.db.tables.Credentials.CREDENTIALS;
-
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -16,7 +13,8 @@ import com.yubico.webauthn.RegisteredCredential;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
 
-import ch.rasc.webauthn.util.BytesUtil;
+import static ch.rasc.webauthn.db.tables.AppUser.APP_USER;
+import static ch.rasc.webauthn.db.tables.Credentials.CREDENTIALS;
 
 @Component
 public class JooqCredentialRepository implements CredentialRepository {
@@ -43,9 +41,6 @@ public class JooqCredentialRepository implements CredentialRepository {
 
   @Override
   public Optional<String> getUsernameForUserHandle(ByteArray userHandle) {
-    System.out.println(
-        "JCR: getUsernameForUserHandle: " + BytesUtil.bytesToLong(userHandle.getBytes()));
-
     var record = this.dsl.select(APP_USER.USERNAME).from(APP_USER).innerJoin(CREDENTIALS)
         .onKey().where(CREDENTIALS.WEBAUTHN_USER_ID.eq(userHandle.getBytes())).fetchOne();
 
@@ -64,9 +59,6 @@ public class JooqCredentialRepository implements CredentialRepository {
   @Override
   public Optional<RegisteredCredential> lookup(ByteArray credentialId,
       ByteArray userHandle) {
-    System.out.println("JCR: lookup: " + credentialId + ":"
-        + BytesUtil.bytesToLong(userHandle.getBytes()));
-
     var record = this.dsl
         .select(CREDENTIALS.ID, CREDENTIALS.PUBLIC_KEY_COSE, CREDENTIALS.COUNT)
         .from(CREDENTIALS).where(CREDENTIALS.WEBAUTHN_USER_ID.eq(userHandle.getBytes())
@@ -84,11 +76,9 @@ public class JooqCredentialRepository implements CredentialRepository {
 
   @Override
   public Set<RegisteredCredential> lookupAll(ByteArray credentialId) {
-    System.out.println("JCR: lookupAll: " + credentialId);
-    System.out.println("JCR: lookupAll length: " + credentialId.getBytes().length);
-
     var records = this.dsl
-        .select(CREDENTIALS.ID, CREDENTIALS.APP_USER_ID, CREDENTIALS.PUBLIC_KEY_COSE,
+      .select(CREDENTIALS.ID, CREDENTIALS.WEBAUTHN_USER_ID,
+        CREDENTIALS.PUBLIC_KEY_COSE,
             CREDENTIALS.COUNT)
         .from(CREDENTIALS).where(CREDENTIALS.ID.eq(credentialId.getBytes())).fetch();
 
@@ -96,8 +86,7 @@ public class JooqCredentialRepository implements CredentialRepository {
     for (var record : records) {
       result.add(RegisteredCredential.builder()
           .credentialId(new ByteArray(record.get(CREDENTIALS.ID)))
-          .userHandle(
-              new ByteArray(BytesUtil.longToBytes(record.get(CREDENTIALS.APP_USER_ID))))
+        .userHandle(new ByteArray(record.get(CREDENTIALS.WEBAUTHN_USER_ID)))
           .publicKeyCose(new ByteArray(record.get(CREDENTIALS.PUBLIC_KEY_COSE)))
           .signatureCount(record.get(CREDENTIALS.COUNT)).build());
     }
@@ -105,9 +94,6 @@ public class JooqCredentialRepository implements CredentialRepository {
   }
 
   public boolean updateSignatureCount(AssertionResult result) {
-    System.out
-        .println("JCR: updateSignatureCount: " + result.getCredential().getUserHandle());
-
     int noOfUpdates = this.dsl.update(CREDENTIALS)
         .set(CREDENTIALS.COUNT, result.getSignatureCount())
         .where(CREDENTIALS.ID.eq(result.getCredential().getCredentialId().getBytes())

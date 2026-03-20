@@ -8,11 +8,35 @@
   <ion-grid>
     <ion-row>
       <ion-col>
+        <ion-item lines="none">
+          <ion-input
+              autocomplete="username webauthn"
+              label="Username"
+              labelPlacement="stacked"
+              name="username"
+              placeholder="Tap here to show passkeys in autofill"
+              type="text"/>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col class="ion-margin-top">
         <ion-button (click)="signIn()" color="primary" expand="block" type="button">
           Sign in with passkey
         </ion-button>
       </ion-col>
     </ion-row>
+
+    @if (conditionalMediationAvailable) {
+      <ion-row>
+        <ion-col>
+          <p class="ion-text-center ion-padding-top">
+            Click in the username field to trigger passkey autofill.
+          </p>
+        </ion-col>
+      </ion-row>
+    }
 
     <ion-row>
       <ion-col class="ion-margin-top">
