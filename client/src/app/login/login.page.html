@@ -10,12 +10,13 @@
       <ion-col>
         <ion-item lines="none">
           <ion-input
-              autocomplete="username webauthn"
-              label="Username"
-              labelPlacement="stacked"
-              name="username"
-              placeholder="Tap here to show passkeys in autofill"
-              type="text"/>
+            autocomplete="username webauthn"
+            label="Username"
+            labelPlacement="stacked"
+            name="username"
+            placeholder="Tap here to show passkeys in autofill"
+            type="text"
+          />
         </ion-item>
       </ion-col>
     </ion-row>
@@ -28,7 +29,7 @@
       </ion-col>
     </ion-row>
 
-    @if (conditionalMediationAvailable) {
+    @if (conditionalMediationAvailable()) {
       <ion-row>
         <ion-col>
           <p class="ion-text-center ion-padding-top">
@@ -40,11 +41,17 @@
 
     <ion-row>
       <ion-col class="ion-margin-top">
-        <ion-button color="light" expand="block" routerDirection="forward" routerLink="/registration" type="button">
+        <ion-button
+          color="light"
+          expand="block"
+          routerDirection="forward"
+          routerLink="/registration"
+          type="button"
+        >
           Registration
         </ion-button>
       </ion-col>
     </ion-row>
-
   </ion-grid>
 </ion-content>
+

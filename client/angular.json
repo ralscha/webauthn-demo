@@ -17,9 +17,7 @@
               "base": "dist/app"
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -30,10 +28,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": [
-              "src/variables.scss",
-              "src/styles.scss"
-            ],
+            "styles": ["src/variables.scss", "src/styles.scss"],
             "scripts": [],
             "browser": "src/main.ts"
           },
@@ -87,19 +82,14 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@ionic/angular-toolkit"
-    ]
+    "schematicCollections": ["@ionic/angular-toolkit"]
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {

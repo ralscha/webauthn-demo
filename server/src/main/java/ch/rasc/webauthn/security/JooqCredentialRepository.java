@@ -1,8 +1,10 @@
 package ch.rasc.webauthn.security;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Component;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.yubico.webauthn.AssertionResult;
 import com.yubico.webauthn.CredentialRepository;
 import com.yubico.webauthn.RegisteredCredential;
+import com.yubico.webauthn.data.AuthenticatorTransport;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.PublicKeyCredentialDescriptor;
 
@@ -36,7 +39,22 @@ public class JooqCredentialRepository implements CredentialRepository {
 
   @Override
   public Set<PublicKeyCredentialDescriptor> getCredentialIdsForUsername(String username) {
-    return Set.of();
+    var records = this.dsl.select(CREDENTIALS.ID, CREDENTIALS.TRANSPORTS)
+        .from(CREDENTIALS).innerJoin(APP_USER).onKey()
+        .where(APP_USER.USERNAME.equalIgnoreCase(username)).fetch();
+
+    Set<PublicKeyCredentialDescriptor> result = new HashSet<>();
+    for (var record : records) {
+      var builder = PublicKeyCredentialDescriptor.builder()
+          .id(new ByteArray(record.get(CREDENTIALS.ID)));
+      Set<AuthenticatorTransport> transports = parseTransports(
+          record.get(CREDENTIALS.TRANSPORTS));
+      if (!transports.isEmpty()) {
+        builder.transports(transports);
+      }
+      result.add(builder.build());
+    }
+    return result;
   }
 
   @Override
@@ -53,7 +71,15 @@ public class JooqCredentialRepository implements CredentialRepository {
 
   @Override
   public Optional<ByteArray> getUserHandleForUsername(String username) {
-    throw new UnsupportedOperationException();
+    var record = this.dsl.select(CREDENTIALS.WEBAUTHN_USER_ID).from(CREDENTIALS)
+        .innerJoin(APP_USER).onKey().where(APP_USER.USERNAME.equalIgnoreCase(username))
+        .fetchOne();
+
+    if (record != null) {
+      return Optional.of(new ByteArray(record.get(CREDENTIALS.WEBAUTHN_USER_ID)));
+    }
+
+    return Optional.empty();
   }
 
   @Override
@@ -102,6 +128,16 @@ public class JooqCredentialRepository implements CredentialRepository {
         .execute();
 
     return noOfUpdates == 1;
+  }
+
+  private static Set<AuthenticatorTransport> parseTransports(String transports) {
+    if (transports == null || transports.isBlank()) {
+      return Set.of();
+    }
+
+    return Arrays.stream(transports.split(",")).map(String::trim)
+        .filter(transport -> !transport.isEmpty())
+        .map(AuthenticatorTransport::of).collect(Collectors.toSet());
   }
 
 }

@@ -1,6 +1,7 @@
 package ch.rasc.webauthn.security;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
@@ -72,6 +73,8 @@ public class AuthController {
 
   private final SecureRandom random;
 
+  private final Clock clock;
+
   public AuthController(DSLContext dsl, JooqCredentialRepository credentialRepository,
       RelyingParty relyingParty, SecurityContextRepository securityContextRepository) {
     this.dsl = dsl;
@@ -85,6 +88,7 @@ public class AuthController {
     this.assertionCache = Caffeine.newBuilder().maximumSize(1000)
         .expireAfterAccess(5, TimeUnit.MINUTES).build();
     this.random = new SecureRandom();
+    this.clock = Clock.systemUTC();
   }
 
   @GetMapping("/authenticate")
@@ -113,7 +117,8 @@ public class AuthController {
 
       var insertedUser = this.dsl
           .insertInto(APP_USER, APP_USER.USERNAME, APP_USER.REGISTRATION_START)
-          .values(username, LocalDateTime.now()).returning(APP_USER.ID).fetchOne();
+          .values(username, LocalDateTime.now(this.clock)).returning(APP_USER.ID)
+          .fetchOne();
       if (insertedUser == null) {
         throw new IllegalStateException("Failed to create user");
       }
@@ -143,9 +148,6 @@ public class AuthController {
       userId = record.get(APP_USER.ID);
       name = record.get(APP_USER.USERNAME);
       mode = Mode.RECOVERY;
-
-      this.dsl.deleteFrom(CREDENTIALS).where(CREDENTIALS.APP_USER_ID.eq(userId))
-          .execute();
     }
 
     if (mode != null) {
@@ -208,6 +210,11 @@ public class AuthController {
             transports += at.getId();
           }
         }
+        if (startResponse.getMode() == Mode.RECOVERY) {
+          this.dsl.deleteFrom(CREDENTIALS).where(CREDENTIALS.APP_USER_ID.eq(userId))
+              .execute();
+        }
+
         this.credentialRepository.addCredential(userId, userIdentity.getId().getBytes(),
             registrationResult.getKeyId().getId().getBytes(),
             registrationResult.getPublicKeyCose().getBytes(), transports,

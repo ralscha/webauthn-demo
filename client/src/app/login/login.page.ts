@@ -1,7 +1,7 @@
-import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {RouterLink} from '@angular/router';
-import {firstValueFrom} from 'rxjs';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import {
   IonButton,
   IonCol,
@@ -14,18 +14,32 @@ import {
   IonRow,
   IonTitle,
   IonToolbar,
-  NavController
+  NavController,
 } from '@ionic/angular/standalone';
-import {MessagesService} from '../messages.service';
+import { MessagesService } from '../messages.service';
+import type { PublicKeyCredentialJSON } from '../types';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
-  imports: [RouterLink, IonRouterLink, IonHeader, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonItem, IonInput, IonButton]
+  imports: [
+    RouterLink,
+    IonRouterLink,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonInput,
+    IonButton,
+  ],
 })
 export class LoginPage implements OnInit, OnDestroy {
-  conditionalMediationAvailable = false;
+  readonly conditionalMediationAvailable = signal(false);
 
   private readonly navCtrl = inject(NavController);
   private readonly httpClient = inject(HttpClient);
@@ -40,19 +54,17 @@ export class LoginPage implements OnInit, OnDestroy {
     this.abortConditionalMediation();
   }
 
-
   async signIn(): Promise<void> {
     this.abortConditionalMediation();
 
     const loading = await this.messagesService.showLoading('Initiate login ...');
     try {
       const response = await firstValueFrom(
-          this.httpClient.post<AssertionStartResponse>('assertion/start', null)
+        this.httpClient.post<AssertionStartResponse>('assertion/start', null),
       );
       await loading.dismiss();
       await this.handleAssertionStart(response);
-    }
-    catch {
+    } catch {
       await loading.dismiss();
       await this.messagesService.showErrorToast('Login failed');
     }
@@ -60,16 +72,19 @@ export class LoginPage implements OnInit, OnDestroy {
 
   private async handleAssertionStart(response: AssertionStartResponse): Promise<void> {
     try {
-      const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(response.publicKeyCredentialRequestOptions);
-      const credential = await navigator.credentials.get({publicKey}) as PublicKeyCredential | null;
+      const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(
+        response.publicKeyCredentialRequestOptions,
+      );
+      const credential = (await navigator.credentials.get({
+        publicKey,
+      })) as PublicKeyCredential | null;
 
       if (!credential) {
         return;
       }
 
       await this.finishAssertion(response.assertionId, credential.toJSON());
-    }
-    catch (error) {
+    } catch (error) {
       if (!this.isExpectedCredentialError(error)) {
         await this.messagesService.showErrorToast('Login failed');
       }
@@ -77,33 +92,36 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   private async startPasskeyAutofill(): Promise<void> {
-    if (!window.PublicKeyCredential
-        || typeof PublicKeyCredential.isConditionalMediationAvailable !== 'function') {
+    if (
+      !window.PublicKeyCredential ||
+      typeof PublicKeyCredential.isConditionalMediationAvailable !== 'function'
+    ) {
       return;
     }
 
     try {
-      this.conditionalMediationAvailable =
-          await PublicKeyCredential.isConditionalMediationAvailable();
+      this.conditionalMediationAvailable.set(
+        await PublicKeyCredential.isConditionalMediationAvailable(),
+      );
 
-      if (!this.conditionalMediationAvailable) {
+      if (!this.conditionalMediationAvailable()) {
         return;
       }
 
       const response = await firstValueFrom(
-          this.httpClient.post<AssertionStartResponse>('assertion/start', null)
+        this.httpClient.post<AssertionStartResponse>('assertion/start', null),
       );
 
       const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(
-          response.publicKeyCredentialRequestOptions
+        response.publicKeyCredentialRequestOptions,
       );
 
       this.conditionalMediationAbortController = new AbortController();
-      const credential = await navigator.credentials.get({
+      const credential = (await navigator.credentials.get({
         publicKey,
         mediation: 'conditional',
-        signal: this.conditionalMediationAbortController.signal
-      }) as PublicKeyCredential | null;
+        signal: this.conditionalMediationAbortController.signal,
+      })) as PublicKeyCredential | null;
       this.conditionalMediationAbortController = null;
 
       if (!credential) {
@@ -111,8 +129,7 @@ export class LoginPage implements OnInit, OnDestroy {
       }
 
       await this.finishAssertion(response.assertionId, credential.toJSON());
-    }
-    catch (error) {
+    } catch (error) {
       this.conditionalMediationAbortController = null;
       if (!this.isExpectedCredentialError(error)) {
         await this.messagesService.showErrorToast('Passkey autofill failed');
@@ -120,30 +137,31 @@ export class LoginPage implements OnInit, OnDestroy {
     }
   }
 
-  private async finishAssertion(assertionId: string,
-      credential: PublicKeyCredentialJSON): Promise<void> {
+  private async finishAssertion(
+    assertionId: string,
+    credential: PublicKeyCredentialJSON,
+  ): Promise<void> {
     const assertionResponse = {
       assertionId,
-      credential
+      credential,
     };
 
     const loading = await this.messagesService.showLoading('Validating ...');
-    await loading.present();
 
     try {
-      const ok = await firstValueFrom(this.httpClient.post<boolean>('assertion/finish',
-          assertionResponse, {
-            withCredentials: true
-          }));
+      const ok = await firstValueFrom(
+        this.httpClient.post<boolean>('assertion/finish', assertionResponse, {
+          withCredentials: true,
+        }),
+      );
       await loading.dismiss();
 
       if (ok) {
-        await this.navCtrl.navigateRoot('/home', {replaceUrl: true});
+        await this.navCtrl.navigateRoot('/home', { replaceUrl: true });
       } else {
         await this.messagesService.showErrorToast('Login failed');
       }
-    }
-    catch {
+    } catch {
       await loading.dismiss();
       await this.messagesService.showErrorToast('Login failed');
     }
@@ -155,8 +173,10 @@ export class LoginPage implements OnInit, OnDestroy {
   }
 
   private isExpectedCredentialError(error: unknown): boolean {
-    return error instanceof DOMException
-        && (error.name === 'AbortError' || error.name === 'NotAllowedError');
+    return (
+      error instanceof DOMException &&
+      (error.name === 'AbortError' || error.name === 'NotAllowedError')
+    );
   }
 }
 

@@ -33,7 +33,7 @@ public class Base58 {
   /**
    * Encodes the given bytes as a base58 string (no checksum is appended).
    *
-   * @param input the bytes to encode
+   * @param inputValue the bytes to encode
    * @return the base58-encoded string
    */
   public static String encode(byte[] inputValue) {

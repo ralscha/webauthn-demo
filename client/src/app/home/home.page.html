@@ -1,14 +1,12 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>
-      Protected Area
-    </ion-title>
+    <ion-title> Protected Area </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <h1>Logged In</h1>
-  <p>{{ secret }}</p>
+  <p>{{ secret.value() }}</p>
 
   <div class="ion-margin-top">
     <ion-button (click)="logout()" class="ion-margin-top">Logout</ion-button>

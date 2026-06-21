@@ -1,8 +1,12 @@
-import {Component, inject, viewChild} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {MessagesService} from '../messages.service';
-import {FormsModule, NgModel} from "@angular/forms";
-import {RouterLink} from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { MessagesService } from '../messages.service';
+import type { PublicKeyCredentialJSON } from '../types';
+import { FormField, FormRoot, form, required } from '@angular/forms/signals';
+import type { FieldTree, TreeValidationResult } from '@angular/forms/signals';
+import { RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import type { SegmentChangeEventDetail } from '@ionic/core';
 import {
   IonBackButton,
   IonButton,
@@ -18,40 +22,100 @@ import {
   IonSegment,
   IonSegmentButton,
   IonTitle,
-  IonToolbar
-} from "@ionic/angular/standalone";
+  IonToolbar,
+} from '@ionic/angular/standalone';
+
+type RegistrationView = 'new' | 'recover';
+
+interface NewRegistrationFormModel {
+  username: string;
+}
+
+interface RecoveryRegistrationFormModel {
+  recoveryCode: string;
+}
 
 @Component({
   selector: 'app-registration',
   templateUrl: './registration.page.html',
   styleUrls: ['./registration.page.scss'],
-  imports: [FormsModule, RouterLink, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonSegment, IonSegmentButton, IonLabel, IonGrid, IonRow, IonCol, IonItem, IonInput, IonButton]
+  imports: [
+    FormRoot,
+    FormField,
+    RouterLink,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonInput,
+    IonButton,
+  ],
 })
 export class RegistrationPage {
-  view = 'new';
-  readonly usernameInput = viewChild.required<NgModel>('username');
-  submitError: string | null = null;
-  recoveryToken: string | null = null;
+  readonly view = signal<RegistrationView>('new');
+  readonly recoveryToken = signal<string | null>(null);
+
+  readonly newRegistrationModel = signal<NewRegistrationFormModel>({ username: '' });
+  readonly newRegistrationForm = form(
+    this.newRegistrationModel,
+    (path) => {
+      required(path.username, { message: 'Username is required' });
+    },
+    {
+      submission: {
+        action: (field) => this.register(field().value().username, null, field.username),
+      },
+    },
+  );
+
+  readonly recoveryRegistrationModel = signal<RecoveryRegistrationFormModel>({ recoveryCode: '' });
+  readonly recoveryRegistrationForm = form(
+    this.recoveryRegistrationModel,
+    (path) => {
+      required(path.recoveryCode, { message: 'Recovery Code is required' });
+    },
+    {
+      submission: {
+        action: (field) => this.register(null, field().value().recoveryCode, field.recoveryCode),
+      },
+    },
+  );
+
   private readonly messagesService = inject(MessagesService);
   private readonly httpClient = inject(HttpClient);
 
-  registerNew(username: string): void {
-    this.register(username, null);
+  usernameError(): string | null {
+    const error = this.newRegistrationForm.username().errors()[0];
+    return error?.message ?? null;
   }
 
-  recover(recovery: string): void {
-    this.register(null, recovery);
+  recoveryCodeError(): string | null {
+    const error = this.recoveryRegistrationForm.recoveryCode().errors()[0];
+    return error?.message ?? null;
   }
 
-  selectSegment($event: Event): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.view = ($event.target as any).value;
+  selectSegment(event: CustomEvent<SegmentChangeEventDetail>): void {
+    const value = event.detail.value;
+    if (value === 'new' || value === 'recover') {
+      this.view.set(value);
+    }
   }
 
-  private async register(username: string | null,
-                         recovery: string | null): Promise<void> {
+  private async register(
+    username: string | null,
+    recovery: string | null,
+    inputField: FieldTree<string>,
+  ): Promise<TreeValidationResult> {
     const loading = await this.messagesService.showLoading('Starting registration ...');
-    await loading.present();
 
     let body = new HttpParams();
     if (username) {
@@ -60,64 +124,112 @@ export class RegistrationPage {
       body = body.set('recoveryToken', recovery);
     }
 
-    this.httpClient.post<RegistrationStartResponse>('registration/start', body)
-      .subscribe({
-        next: async (response) => {
-          await loading.dismiss();
-          if (response.status === 'OK') {
-            this.submitError = null;
-            await this.createCredentials(response);
-          } else if (response.status === 'USERNAME_TAKEN') {
-            this.submitError = 'usernameTaken';
-          } else if (response.status === 'TOKEN_INVALID') {
-            this.submitError = 'recoveryTokenInvalid';
-          }
-          if (this.submitError) {
-            this.usernameInput().control.setErrors({serverValidationError: true});
-          }
-        },
-        error: () => {
-          loading.dismiss();
-          this.messagesService.showErrorToast('Registration failed');
-        },
-        complete: () => loading.dismiss(),
-      });
+    let response: RegistrationStartResponse;
+    try {
+      response = await firstValueFrom(
+        this.httpClient.post<RegistrationStartResponse>('registration/start', body),
+      );
+    } catch {
+      await this.messagesService.showErrorToast('Registration failed');
+      return { kind: 'registrationStartFailed', message: 'Registration failed' };
+    } finally {
+      await loading.dismiss();
+    }
+
+    if (response.status === 'OK') {
+      if (this.isSuccessfulResponse(response)) {
+        await this.createCredentials(response);
+      }
+      return undefined;
+    }
+
+    return {
+      kind: response.status,
+      message: this.registrationStatusMessage(response.status),
+      fieldTree: inputField,
+    };
   }
 
-  private async createCredentials(response: RegistrationStartResponse): Promise<void> {
-    const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(response.publicKeyCredentialCreationOptions);
-    const cred = (await navigator.credentials.create({publicKey})) as PublicKeyCredential;
-    const credential = cred.toJSON();
+  private registrationStatusMessage(status: RegistrationStartResponse['status']): string {
+    if (status === 'USERNAME_TAKEN') {
+      return 'Username already registered';
+    }
+    if (status === 'TOKEN_INVALID') {
+      return 'Recovery Code invalid';
+    }
+    return 'Registration failed';
+  }
+
+  private async createCredentials(response: SuccessfulRegistrationStartResponse): Promise<void> {
+    let credential: PublicKeyCredentialJSON;
+    try {
+      const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(
+        response.publicKeyCredentialCreationOptions,
+      );
+      const cred = (await navigator.credentials.create({
+        publicKey,
+      })) as PublicKeyCredential | null;
+      if (!cred) {
+        return;
+      }
+      credential = cred.toJSON();
+    } catch (error) {
+      if (!this.isExpectedCredentialError(error)) {
+        await this.messagesService.showErrorToast('Registration failed');
+      }
+      return;
+    }
 
     const credentialResponse = {
       registrationId: response.registrationId,
-      credential
+      credential,
     };
 
     const loading = await this.messagesService.showLoading('Finishing registration ...');
-    await loading.present();
 
-    this.httpClient.post('registration/finish', credentialResponse, {responseType: 'text'})
-      .subscribe({
-        next: recoveryToken => {
-          if (recoveryToken) {
-            this.recoveryToken = recoveryToken;
-          } else {
-            this.messagesService.showErrorToast('Registration failed');
-          }
-        },
-        error: () => {
-          loading.dismiss();
-          this.messagesService.showErrorToast('Registration failed');
-        },
-        complete: () => loading.dismiss()
-      });
+    try {
+      const recoveryToken = await firstValueFrom(
+        this.httpClient.post('registration/finish', credentialResponse, { responseType: 'text' }),
+      );
+
+      if (recoveryToken) {
+        this.recoveryToken.set(recoveryToken);
+      } else {
+        await this.messagesService.showErrorToast('Registration failed');
+      }
+    } catch {
+      await this.messagesService.showErrorToast('Registration failed');
+    } finally {
+      await loading.dismiss();
+    }
+  }
+
+  private isExpectedCredentialError(error: unknown): boolean {
+    return (
+      error instanceof DOMException &&
+      (error.name === 'AbortError' || error.name === 'NotAllowedError')
+    );
+  }
+
+  private isSuccessfulResponse(
+    response: RegistrationStartResponse,
+  ): response is SuccessfulRegistrationStartResponse {
+    return (
+      response.status === 'OK' &&
+      typeof response.registrationId === 'string' &&
+      response.publicKeyCredentialCreationOptions !== undefined
+    );
   }
 }
 
 interface RegistrationStartResponse {
   status: 'OK' | 'USERNAME_TAKEN' | 'TOKEN_INVALID';
   registrationId?: string;
-  publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptionsJSON;
+  publicKeyCredentialCreationOptions?: PublicKeyCredentialCreationOptionsJSON;
 }
 
+interface SuccessfulRegistrationStartResponse extends RegistrationStartResponse {
+  status: 'OK';
+  registrationId: string;
+  publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptionsJSON;
+}

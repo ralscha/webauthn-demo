@@ -1,40 +1,38 @@
-import {inject, Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
-import {catchError, map, tap} from 'rxjs/operators';
+import { inject, Service } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { catchError, map, tap } from 'rxjs/operators';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Service()
 export class AuthService {
   private readonly httpClient = inject(HttpClient);
 
   private loggedIn = false;
 
   isAuthenticated(): Observable<boolean> {
-    return this.httpClient.get<void>('authenticate', {
-      withCredentials: true
-    }).pipe(
-      tap(() => this.loggedIn = true),
-      map(() => true),
-      catchError(() => {
-        this.loggedIn = false;
-        return of(false);
+    return this.httpClient
+      .get<void>('authenticate', {
+        withCredentials: true,
       })
-    );
+      .pipe(
+        tap(() => (this.loggedIn = true)),
+        map(() => true),
+        catchError(() => {
+          this.loggedIn = false;
+          return of(false);
+        }),
+      );
   }
 
   logout(): Observable<void> {
-    return this.httpClient.get<void>('logout', {
-      withCredentials: true
-    }).pipe(tap(() => this.loggedIn = false));
+    return this.httpClient
+      .get<void>('logout', {
+        withCredentials: true,
+      })
+      .pipe(tap(() => (this.loggedIn = false)));
   }
 
   isLoggedIn(): boolean {
     return this.loggedIn;
   }
-
 }
-
-
-
