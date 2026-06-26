@@ -1,1 +1,0 @@
-.\mvnw.cmd generate-sources -Pjooq

@@ -1,21 +1,7 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import {
-  IonButton,
-  IonCol,
-  IonContent,
-  IonGrid,
-  IonHeader,
-  IonInput,
-  IonItem,
-  IonRouterLink,
-  IonRow,
-  IonTitle,
-  IonToolbar,
-  NavController,
-} from '@ionic/angular/standalone';
 import { MessagesService } from '../messages.service';
 import type { PublicKeyCredentialJSON } from '../types';
 
@@ -23,25 +9,12 @@ import type { PublicKeyCredentialJSON } from '../types';
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
-  imports: [
-    RouterLink,
-    IonRouterLink,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonContent,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonItem,
-    IonInput,
-    IonButton,
-  ],
+  imports: [RouterLink],
 })
 export class LoginPage implements OnInit, OnDestroy {
   readonly conditionalMediationAvailable = signal(false);
 
-  private readonly navCtrl = inject(NavController);
+  private readonly router = inject(Router);
   private readonly httpClient = inject(HttpClient);
   private readonly messagesService = inject(MessagesService);
   private conditionalMediationAbortController: AbortController | null = null;
@@ -157,7 +130,7 @@ export class LoginPage implements OnInit, OnDestroy {
       await loading.dismiss();
 
       if (ok) {
-        await this.navCtrl.navigateRoot('/home', { replaceUrl: true });
+        await this.router.navigateByUrl('/home', { replaceUrl: true });
       } else {
         await this.messagesService.showErrorToast('Login failed');
       }

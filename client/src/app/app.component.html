@@ -1,3 +1,22 @@
-<ion-app>
-  <ion-router-outlet />
-</ion-app>
+<main class="min-h-dvh bg-base-200 text-base-content">
+  <router-outlet />
+</main>
+
+@if (messages.loadingMessage()) {
+  <div class="fixed inset-0 z-50 grid place-items-center bg-base-300/60 p-6 backdrop-blur-sm">
+    <div class="card w-full max-w-sm bg-base-100 shadow-xl">
+      <div class="card-body items-center gap-4 text-center">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+        <p class="font-medium">{{ messages.loadingMessage() }}</p>
+      </div>
+    </div>
+  </div>
+}
+
+@if (messages.toastMessage()) {
+  <div class="toast toast-bottom toast-center z-50">
+    <div role="alert" class="alert alert-error">
+      <span>{{ messages.toastMessage() }}</span>
+    </div>
+  </div>
+}

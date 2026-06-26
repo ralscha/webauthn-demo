@@ -3,6 +3,7 @@
  */
 package ch.rasc.webauthn.db;
 
+
 import ch.rasc.webauthn.db.tables.AppUser;
 import ch.rasc.webauthn.db.tables.Credentials;
 import ch.rasc.webauthn.db.tables.records.AppUserRecord;
@@ -13,39 +14,28 @@ import org.jooq.TableField;
 import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
+import org.jooq.impl.QOM.ForeignKeyRule;
+
 
 /**
- * A class modelling foreign key relationships and constraints of tables in webauthn.
+ * A class modelling foreign key relationships and constraints of tables in
+ * public.
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Keys {
 
-  // -------------------------------------------------------------------------
-  // UNIQUE and PRIMARY KEY definitions
-  // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // UNIQUE and PRIMARY KEY definitions
+    // -------------------------------------------------------------------------
 
-  public static final UniqueKey<AppUserRecord> KEY_APP_USER_PRIMARY = Internal
-      .createUniqueKey(AppUser.APP_USER, DSL.name("KEY_app_user_PRIMARY"),
-          new TableField[] { AppUser.APP_USER.ID }, true);
-  public static final UniqueKey<AppUserRecord> KEY_APP_USER_USERNAME = Internal
-      .createUniqueKey(AppUser.APP_USER, DSL.name("KEY_app_user_username"),
-          new TableField[] { AppUser.APP_USER.USERNAME }, true);
-  public static final UniqueKey<CredentialsRecord> KEY_CREDENTIALS_PRIMARY = Internal
-      .createUniqueKey(Credentials.CREDENTIALS, DSL.name("KEY_credentials_PRIMARY"),
-          new TableField[] { Credentials.CREDENTIALS.ID,
-              Credentials.CREDENTIALS.APP_USER_ID },
-          true);
-  public static final UniqueKey<CredentialsRecord> KEY_CREDENTIALS_WEBAUTHN_USER_ID = Internal
-      .createUniqueKey(Credentials.CREDENTIALS,
-          DSL.name("KEY_credentials_webauthn_user_id"),
-          new TableField[] { Credentials.CREDENTIALS.WEBAUTHN_USER_ID }, true);
+    public static final UniqueKey<AppUserRecord> APP_USER_PKEY = Internal.createUniqueKey(AppUser.APP_USER, DSL.name("app_user_pkey"), new TableField[] { AppUser.APP_USER.ID }, true);
+    public static final UniqueKey<AppUserRecord> APP_USER_USERNAME_KEY = Internal.createUniqueKey(AppUser.APP_USER, DSL.name("app_user_username_key"), new TableField[] { AppUser.APP_USER.USERNAME }, true);
+    public static final UniqueKey<CredentialsRecord> CREDENTIALS_PKEY = Internal.createUniqueKey(Credentials.CREDENTIALS, DSL.name("credentials_pkey"), new TableField[] { Credentials.CREDENTIALS.ID, Credentials.CREDENTIALS.APP_USER_ID }, true);
+    public static final UniqueKey<CredentialsRecord> CREDENTIALS_WEBAUTHN_USER_ID_KEY = Internal.createUniqueKey(Credentials.CREDENTIALS, DSL.name("credentials_webauthn_user_id_key"), new TableField[] { Credentials.CREDENTIALS.WEBAUTHN_USER_ID }, true);
 
-  // -------------------------------------------------------------------------
-  // FOREIGN KEY definitions
-  // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // FOREIGN KEY definitions
+    // -------------------------------------------------------------------------
 
-  public static final ForeignKey<CredentialsRecord, AppUserRecord> CREDENTIALS_IBFK_1 = Internal
-      .createForeignKey(Credentials.CREDENTIALS, DSL.name("credentials_ibfk_1"),
-          new TableField[] { Credentials.CREDENTIALS.APP_USER_ID },
-          Keys.KEY_APP_USER_PRIMARY, new TableField[] { AppUser.APP_USER.ID }, true);
+    public static final ForeignKey<CredentialsRecord, AppUserRecord> CREDENTIALS__CREDENTIALS_APP_USER_ID_FKEY = Internal.createForeignKey(Credentials.CREDENTIALS, DSL.name("credentials_app_user_id_fkey"), new TableField[] { Credentials.CREDENTIALS.APP_USER_ID }, Keys.APP_USER_PKEY, new TableField[] { AppUser.APP_USER.ID }, true, ForeignKeyRule.CASCADE, ForeignKeyRule.NO_ACTION);
 }

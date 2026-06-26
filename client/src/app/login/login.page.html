@@ -1,57 +1,34 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>Login</ion-title>
-  </ion-toolbar>
-</ion-header>
+<header class="navbar bg-base-100 shadow-sm">
+  <div class="navbar-center mx-auto w-full max-w-3xl justify-start px-4">
+    <h1 class="text-lg font-semibold">Login</h1>
+  </div>
+</header>
 
-<ion-content class="ion-padding">
-  <ion-grid>
-    <ion-row>
-      <ion-col>
-        <ion-item lines="none">
-          <ion-input
-            autocomplete="username webauthn"
-            label="Username"
-            labelPlacement="stacked"
-            name="username"
-            placeholder="Tap here to show passkeys in autofill"
-            type="text"
-          />
-        </ion-item>
-      </ion-col>
-    </ion-row>
+<section class="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-8">
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body gap-5">
+      <label class="form-control w-full gap-2">
+        <span class="label-text">Username</span>
+        <input
+          autocomplete="username webauthn"
+          class="input w-full"
+          name="username"
+          placeholder="Tap here to show passkeys in autofill"
+          type="text"
+        />
+      </label>
 
-    <ion-row>
-      <ion-col class="ion-margin-top">
-        <ion-button (click)="signIn()" color="primary" expand="block" type="button">
-          Sign in with passkey
-        </ion-button>
-      </ion-col>
-    </ion-row>
+      <button (click)="signIn()" class="btn btn-primary btn-block" type="button">
+        Sign in with passkey
+      </button>
 
-    @if (conditionalMediationAvailable()) {
-      <ion-row>
-        <ion-col>
-          <p class="ion-text-center ion-padding-top">
-            Click in the username field to trigger passkey autofill.
-          </p>
-        </ion-col>
-      </ion-row>
-    }
+      @if (conditionalMediationAvailable()) {
+        <p class="text-center text-sm text-base-content/70">
+          Click in the username field to trigger passkey autofill.
+        </p>
+      }
 
-    <ion-row>
-      <ion-col class="ion-margin-top">
-        <ion-button
-          color="light"
-          expand="block"
-          routerDirection="forward"
-          routerLink="/registration"
-          type="button"
-        >
-          Registration
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-</ion-content>
-
+      <a class="btn btn-block" routerLink="/registration">Registration</a>
+    </div>
+  </div>
+</section>

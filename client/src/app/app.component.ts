@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
-import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { MessagesService } from './messages.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  imports: [IonRouterOutlet, IonApp],
+  imports: [RouterOutlet],
 })
-export class AppComponent {}
+export class AppComponent {
+  readonly messages = inject(MessagesService);
+}

@@ -3,22 +3,24 @@
  */
 package ch.rasc.webauthn.db;
 
+
 import ch.rasc.webauthn.db.tables.AppUser;
 import ch.rasc.webauthn.db.tables.Credentials;
 
+
 /**
- * Convenience access to all tables in webauthn.
+ * Convenience access to all tables in public.
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes", "this-escape" })
 public class Tables {
 
-  /**
-   * The table <code>webauthn.app_user</code>.
-   */
-  public static final AppUser APP_USER = AppUser.APP_USER;
+    /**
+     * The table <code>public.app_user</code>.
+     */
+    public static final AppUser APP_USER = AppUser.APP_USER;
 
-  /**
-   * The table <code>webauthn.credentials</code>.
-   */
-  public static final Credentials CREDENTIALS = Credentials.CREDENTIALS;
+    /**
+     * The table <code>public.credentials</code>.
+     */
+    public static final Credentials CREDENTIALS = Credentials.CREDENTIALS;
 }

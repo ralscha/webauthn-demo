@@ -6,24 +6,6 @@ import { FormField, FormRoot, form, required } from '@angular/forms/signals';
 import type { FieldTree, TreeValidationResult } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import type { SegmentChangeEventDetail } from '@ionic/core';
-import {
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonCol,
-  IonContent,
-  IonGrid,
-  IonHeader,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonRow,
-  IonSegment,
-  IonSegmentButton,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular/standalone';
 
 type RegistrationView = 'new' | 'recover';
 
@@ -39,26 +21,7 @@ interface RecoveryRegistrationFormModel {
   selector: 'app-registration',
   templateUrl: './registration.page.html',
   styleUrls: ['./registration.page.scss'],
-  imports: [
-    FormRoot,
-    FormField,
-    RouterLink,
-    IonHeader,
-    IonToolbar,
-    IonButtons,
-    IonBackButton,
-    IonTitle,
-    IonContent,
-    IonSegment,
-    IonSegmentButton,
-    IonLabel,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonItem,
-    IonInput,
-    IonButton,
-  ],
+  imports: [FormRoot, FormField, RouterLink],
 })
 export class RegistrationPage {
   readonly view = signal<RegistrationView>('new');
@@ -103,11 +66,8 @@ export class RegistrationPage {
     return error?.message ?? null;
   }
 
-  selectSegment(event: CustomEvent<SegmentChangeEventDetail>): void {
-    const value = event.detail.value;
-    if (value === 'new' || value === 'recover') {
-      this.view.set(value);
-    }
+  selectView(value: RegistrationView): void {
+    this.view.set(value);
   }
 
   private async register(

@@ -1,0 +1,93 @@
+version: '3'
+
+vars:
+  MVNW: '{{if eq OS "windows"}}cmd /c mvnw.cmd{{else}}./mvnw{{end}}'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  db:up:
+    desc: Start the PostgreSQL database
+    cmds:
+      - docker compose -f server/docker-compose.yml up -d
+
+  db:down:
+    desc: Stop the PostgreSQL database
+    cmds:
+      - docker compose -f server/docker-compose.yml down
+
+  db:logs:
+    desc: Follow PostgreSQL logs
+    cmds:
+      - docker compose -f server/docker-compose.yml logs -f wa_db
+
+  server:run:
+    desc: Run the Spring Boot server
+    dir: server
+    cmds:
+      - '{{.MVNW}} spring-boot:run'
+
+  server:test:
+    desc: Run server tests
+    dir: server
+    cmds:
+      - '{{.MVNW}} test'
+
+  server:build:
+    desc: Build the server jar without running tests
+    dir: server
+    cmds:
+      - '{{.MVNW}} -DskipTests package'
+
+  server:jooq:
+    desc: Generate jOOQ classes from the running PostgreSQL database
+    dir: server
+    cmds:
+      - '{{.MVNW}} generate-sources -Pjooq'
+
+  client:install:
+    desc: Install client dependencies
+    dir: client
+    cmds:
+      - npm install
+
+  client:start:
+    desc: Run the Angular dev server
+    dir: client
+    cmds:
+      - npm start
+
+  client:lint:
+    desc: Lint the client
+    dir: client
+    cmds:
+      - npm run lint
+
+  client:build:
+    desc: Build the client
+    dir: client
+    cmds:
+      - npm run build
+
+  client:format:
+    desc: Format the client
+    dir: client
+    cmds:
+      - npm run format
+
+  build:
+    desc: Build client and server
+    deps:
+      - client:build
+      - server:build
+
+  verify:
+    desc: Run lint/build checks
+    deps:
+      - client:lint
+      - client:build
+      - server:test

@@ -17,18 +17,11 @@
               "base": "dist/app"
             },
             "index": "src/index.html",
-            "polyfills": ["src/polyfills.ts"],
+            "polyfills": [],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [
-              "src/assets",
-              {
-                "glob": "@(arrow-back-sharp.svg|chevron-back.svg)",
-                "input": "node_modules/ionicons/dist/ionicons/svg",
-                "output": "./svg"
-              }
-            ],
-            "styles": ["src/variables.scss", "src/styles.scss"],
+            "assets": ["src/assets"],
+            "styles": ["src/styles.css"],
             "scripts": [],
             "browser": "src/main.ts"
           },
@@ -37,8 +30,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "810kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "320kb",
+                  "maximumError": "380kb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -88,16 +81,7 @@
       }
     }
   },
-  "cli": {
-    "schematicCollections": ["@ionic/angular-toolkit"]
-  },
   "schematics": {
-    "@ionic/angular-toolkit:component": {
-      "styleext": "scss"
-    },
-    "@ionic/angular-toolkit:page": {
-      "styleext": "scss"
-    },
     "@schematics/angular:component": {
       "type": "component"
     },

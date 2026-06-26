@@ -1,14 +1,18 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title> Protected Area </ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
-  <h1>Logged In</h1>
-  <p>{{ secret.value() }}</p>
-
-  <div class="ion-margin-top">
-    <ion-button (click)="logout()" class="ion-margin-top">Logout</ion-button>
+<header class="navbar bg-base-100 shadow-sm">
+  <div class="navbar-center mx-auto w-full max-w-3xl justify-start px-4">
+    <h1 class="text-lg font-semibold">Protected Area</h1>
   </div>
-</ion-content>
+</header>
+
+<section class="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8">
+  <div class="card bg-base-100 shadow-sm">
+    <div class="card-body gap-4">
+      <h2 class="card-title">Logged In</h2>
+      <p>{{ secret.value() }}</p>
+
+      <div class="card-actions justify-end">
+        <button (click)="logout()" class="btn" type="button">Logout</button>
+      </div>
+    </div>
+  </div>
+</section>

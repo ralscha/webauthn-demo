@@ -1,8 +1,8 @@
 services:
   wa_db:
-    image: mariadb
+    image: postgres:18-alpine
     environment:
-      MARIADB_DATABASE: webauthn
-      MARIADB_ROOT_PASSWORD: password
+      POSTGRES_DB: webauthn
+      POSTGRES_PASSWORD: password
     ports:
-      - "3306:3306"
+      - "5432:5432"
