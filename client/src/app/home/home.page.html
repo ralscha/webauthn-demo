@@ -9,6 +9,14 @@
     <div class="card-body gap-4">
       <h2 class="card-title">Logged In</h2>
       <p>{{ secret.value() }}</p>
+      @if (passkeys.value(); as keys) {
+        <h3 class="font-semibold">Registered passkeys</h3>
+        <ul>
+          @for (key of keys; track $index) {
+            <li>Passkey {{ $index + 1 }} · {{ key.registeredAt ? (key.registeredAt | date:'medium') : 'Registration date unavailable' }}</li>
+          }
+        </ul>
+      }
 
       <div class="card-actions justify-end">
         <button (click)="logout()" class="btn" type="button">Logout</button>

@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -7,10 +8,12 @@ import { MessagesService } from '../messages.service';
 
 @Component({
   selector: 'app-home',
+  imports: [DatePipe],
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage {
+  readonly passkeys = httpResource<{ registeredAt: string | null }[]>(() => ({ url: 'account/passkeys', withCredentials: true }));
   readonly secret = httpResource.text(() => ({ url: 'secret', withCredentials: true }));
 
   private readonly authService = inject(AuthService);
